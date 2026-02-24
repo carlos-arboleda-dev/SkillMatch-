@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const authRoutes = require('./routes/authroutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -13,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Permite peticiones del frontend
 app.use(express.json()); // Para parsear JSON
 app.use(express.urlencoded({ extended: true })); // Para parsear formularios
+app.use('/api/auth', authRoutes);
+
+
 
 // Ruta de prueba básica
 app.get('/', (req, res) => {
