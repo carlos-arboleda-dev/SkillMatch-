@@ -1,0 +1,100 @@
+/* frontend/css/register.css */
+:root {
+    --verde-pastel-1: #A8E6CF;
+    --verde-pastel-2: #9ED9CC;
+    --verde-pastel-3: #8EC9C1;
+    --verde-pastel-4: #E5F9E0;
+    --verde-pastel-5: #CCF0E0;
+}
+
+body {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95);
+    border: none;
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+    border-bottom: none;
+}
+
+.card-header h2, .card-header p {
+    color: #2c5e5e;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e0e0e0;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--verde-pastel-2);
+    box-shadow: 0 0 0 0.2rem rgba(158, 217, 204, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.3s ease;
+    color: #2c5e5e;
+    border: 1px solid var(--verde-pastel-3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(158, 217, 204, 0.4);
+    color: #1a3f3f;
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Estilo para campos readonly */
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Animación de carga */
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    color: #2c5e5e;
+}
+
+/* Links */
+a {
+    color: var(--verde-pastel-3);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--verde-pastel-2);
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card-header h2 {
+        font-size: 1.8rem;
+    }
+}

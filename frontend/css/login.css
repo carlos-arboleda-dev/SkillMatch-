@@ -1,0 +1,152 @@
+/* frontend/css/login.css */
+:root {
+    --verde-pastel-1: #A8E6CF;  /* Verde pastel claro */
+    --verde-pastel-2: #9ED9CC;  /* Verde pastel medio */
+    --verde-pastel-3: #8EC9C1;  /* Verde pastel más oscuro */
+    --verde-pastel-4: #E5F9E0;  /* Verde pastel muy claro */
+    --verde-pastel-5: #CCF0E0;  /* Verde pastel adicional */
+}
+
+body {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.skillmatch-title {
+    color: var(--verde-pastel-3);
+    font-weight: 700;
+    font-size: 2.2rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.login-input {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.login-input:focus {
+    border-color: var(--verde-pastel-2);
+    box-shadow: 0 0 0 0.2rem rgba(158, 217, 204, 0.25);
+    background-color: white;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+    color: #2c5e5e;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--verde-pastel-3);
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+    color: #1a3f3f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(158, 217, 204, 0.4);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.btn-login:disabled {
+    background: #cccccc;
+    border-color: #bbbbbb;
+    color: #666666;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Botón de mostrar/ocultar contraseña */
+.input-group .btn-outline-secondary {
+    border-color: #e0e0e0;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    background-color: #f8f9fa;
+    color: var(--verde-pastel-3);
+}
+
+.input-group .btn-outline-secondary:hover {
+    background-color: var(--verde-pastel-5);
+    color: var(--verde-pastel-3);
+    border-color: var(--verde-pastel-2);
+}
+
+.forgot-password {
+    color: var(--verde-pastel-3);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: var(--verde-pastel-2);
+    text-decoration: underline;
+}
+
+.register-link a {
+    color: var(--verde-pastel-3);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: var(--verde-pastel-2);
+    text-decoration: underline;
+}
+
+/* Estado de carga */
+.spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: #2c5e5e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .skillmatch-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Animación suave al cargar */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: fadeIn 0.6s ease-out;
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - SkillMatch</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Nuestro CSS -->
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-5 col-lg-4">
+                <!-- Tarjeta de login -->
+                <div class="login-card">
+                    <!-- Logo y título -->
+                    <div class="text-center mb-4">
+                        <i class="fas fa-handshake fa-4x mb-3" style="color: #A8E6CF;"></i>
+                        <h1 class="skillmatch-title">SkillMatch</h1>
+                        <p class="text-muted">Conecta con estudiantes afines y crea proyectos increíbles.</p>
+                    </div>
+
+                    <!-- Formulario de login -->
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="email" class="form-label text-muted small fw-semibold">CÓDIGO ESTUDIANTIL O CORREO</label>
+                            <input type="text" class="form-control login-input" id="email" 
+                                   placeholder="ejemplo@udenar.edu.co o 2023123456" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label text-muted small fw-semibold">CONTRASEÑA</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control login-input" id="password" 
+                                       placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-login w-100 mb-3" id="btnLogin">
+                            <span class="btn-text">Iniciar sesión</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+
+                        <div class="text-center mb-4">
+                            <a href="#" class="forgot-password">¿Olvidó su contraseña?</a>
+                        </div>
+
+                        <div class="text-center register-link">
+                            <p class="mb-0">¿No tienes cuenta? <a href="register.html" class="fw-bold">Registrarse</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Nuestro JS -->
+    <script src="../js/login.js"></script>
+</body>
+</html>
