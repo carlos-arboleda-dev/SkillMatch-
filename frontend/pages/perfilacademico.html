@@ -1,3 +1,4 @@
+<!-- frontend/pages/perfilacademico.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head> 
@@ -17,128 +18,127 @@
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow-lg border-0 rounded-4">
                     <!-- cabecera -->
-                    <div class="card-header bg-primary text-white text-center py-4 rounded-top-4" >
+                    <div class="card-header bg-primary text-white text-center py-4 rounded-top-4">
                         <i class="fas fa-handshake fa-3x mb-3"></i>
                         <h2 class="fw-bold">SkillMatch</h2>
-                        <p class="mb-0">Añade tus intereses</p>
+                        <p class="mb-0">Completa tu perfil académico</p>
                     </div>
-                    <div class="card-body p4">
-                        <form id="perilform">
-                             <!-- intereses academicos -->
-                            <div class="">
+                    <div class="card-body p-4">
+                        <form id="perfilForm">
+                            <!-- Intereses academicos -->
+                            <div class="mb-3">
                                 <label for="intereses" class="form-label fw-semibold">
-                                    <i class="fas  me-2 text-primary"></i> 
+                                    <i class="fas fa-star me-2 text-primary"></i>Intereses Académicos
                                 </label>
-                                <select class="form-select form-select-lg" id="intereses" required>
-                                    <option value="">Intereses Academicos</option>
-                                    <option value="1">Programación</option>
-                                    <option value="2">Diseño Grafico</option>
-                                    <option value="3">ciencia de datos </option>
-                                    <option value="4">Inteligencia ariticial</option>
-                                    <option value="5">Investigación</option>
-                                    <option value="6">Matemáticas</option>
-                                    <option value="7">Electrónica</option>
-                                    <option value="8">Educación</option>
-                                    <option value="8">Medio Ambiente </option>
-                                    <option value="8">Comunicación</option>
-                                    <option value="8">Innovación Tecnológica</option>
+                                <select class="form-select form-select-lg" id="intereses" multiple size="3">
+                                    <option value="Programación">Programación</option>
+                                    <option value="Diseño Gráfico">Diseño Gráfico</option>
+                                    <option value="Ciencia de Datos">Ciencia de Datos</option>
+                                    <option value="Inteligencia Artificial">Inteligencia Artificial</option>
+                                    <option value="Investigación">Investigación</option>
+                                    <option value="Matemáticas">Matemáticas</option>
+                                    <option value="Electrónica">Electrónica</option>
+                                    <option value="Educación">Educación</option>
+                                    <option value="Medio Ambiente">Medio Ambiente</option>
+                                    <option value="Comunicación">Comunicación</option>
+                                    <option value="Innovación Tecnológica">Innovación Tecnológica</option>
                                 </select>
+                                <small class="text-muted">Selecciona múltiples con Ctrl (Cmd en Mac)</small>
                             </div>
+
                             <!-- Habilidades -->
                             <div class="mb-3">
                                 <label for="habilidades" class="form-label fw-semibold">
-                                    <i class="fas  me-2 text-primary"></i> 
+                                    <i class="fas fa-cog me-2 text-primary"></i>Habilidades
                                 </label>
-                                <select class="form-select form-select-lg" id="habilidades" required>
-                                    <option value="">habilidades</option>
-                                    <option value="">Trabajo en equipo</option>
-                                    <option value="">Liderazgo</option>
-                                    <option value="">Comunicación oral</option>
-                                    <option value="">Comunicación escrita</option>
-                                    <option value="">Resolución de problemas</option>
-                                    <option value="">Gestión de proyectos</option>
-                                    <option value="">Diseño</option>
-                                    <option value="">Programación</option>
-                                    <option value="">Investigación</option>
-                                    <option value="">Organización</option>
-                                    <option value="">Análisis crítico</option>
+                                <select class="form-select form-select-lg" id="habilidades" multiple size="3">
+                                    <option value="Trabajo en equipo">Trabajo en equipo</option>
+                                    <option value="Liderazgo">Liderazgo</option>
+                                    <option value="Comunicación oral">Comunicación oral</option>
+                                    <option value="Comunicación escrita">Comunicación escrita</option>
+                                    <option value="Resolución de problemas">Resolución de problemas</option>
+                                    <option value="Gestión de proyectos">Gestión de proyectos</option>
+                                    <option value="Diseño">Diseño</option>
+                                    <option value="Programación">Programación</option>
+                                    <option value="Investigación">Investigación</option>
+                                    <option value="Organización">Organización</option>
+                                    <option value="Análisis crítico">Análisis crítico</option>
                                 </select>
                             </div>
-                            <!-- tipos de proyectadas -->
-                            <div class="mb-3">
-                                <label for="tipos_De_proyectos" class="form-label fw-semibold">
-                                    <i class="fas  me-2 text-primary"></i> 
-                                </label>
-                                <select class="form-select form-select-lg" id="tipos_De_proyectos" required>
-                                    <option value="">tipos de proyecto</option>
-                                    <option value="">Proyectos de investigación</option>
-                                    <option value="">Proyectos sociales</option>
-                                    <option value="">Proyectos de desarrollo (software/app)</option>
-                                    <option value="">Proyectos creativos o artísticos</option>
-                                    <option value="">Proyectos académicos</option>
-                                    <option value="">Proyectos ambientales</option>
-                                    <option value="">Proyectos empresariales o de emprendimiento</option>
-                                    <option value="">Proyectos tecnológicos</option>
-                                </select>
 
-                            <!-- temas que te gustan aprender -->
+                            <!-- Tipos de proyectos -->
                             <div class="mb-3">
-                                <label for="temas_que_te_gustan" class="form-label fw-semibold">
-                                    <i class="fas  me-2 text-primary"></i> 
+                                <label for="tipos_proyecto" class="form-label fw-semibold">
+                                    <i class="fas fa-project-diagram me-2 text-primary"></i>Tipos de Proyecto de Interés
                                 </label>
-                                <select class="form-select form-select-lg" id="temas_que_te_gustan" required>
-                                    <option value="">Temas que te gustan Aprender</option>
-                                    <option value="">Inteligencia artificial</option>
-                                    <option value="">Programación</option>
-                                    <option value="">Educación</option>
-                                    <option value="">Psicología</option>
-                                    <option value="">Medio ambiente</option>
-                                    <option value="">Ciencia de datos</option>
-                                    <option value="">Emprendimiento</option>
-                                    <option value="">Arte y diseño</option>
-                                    <option value="">Economía</option>
-                                    <option value="">Robótica</option>
-                                    <option value="">Innovación</option>
+                                <select class="form-select form-select-lg" id="tipos_proyecto" multiple size="3">
+                                    <option value="Proyectos de investigación">Proyectos de investigación</option>
+                                    <option value="Proyectos sociales">Proyectos sociales</option>
+                                    <option value="Proyectos de desarrollo (software/app)">Proyectos de desarrollo</option>
+                                    <option value="Proyectos creativos o artísticos">Proyectos creativos</option>
+                                    <option value="Proyectos académicos">Proyectos académicos</option>
+                                    <option value="Proyectos ambientales">Proyectos ambientales</option>
+                                    <option value="Proyectos empresariales">Proyectos empresariales</option>
+                                    <option value="Proyectos tecnológicos">Proyectos tecnológicos</option>
                                 </select>
+                            </div>
 
-                            <!-- rol preferido -->
-                            
+                            <!-- Temas que te gustan aprender -->
                             <div class="mb-3">
+                                <label for="temas_aprender" class="form-label fw-semibold">
+                                    <i class="fas fa-book-open me-2 text-primary"></i>Temas que te gusta aprender
+                                </label>
+                                <select class="form-select form-select-lg" id="temas_aprender" multiple size="3">
+                                    <option value="Inteligencia artificial">Inteligencia artificial</option>
+                                    <option value="Programación">Programación</option>
+                                    <option value="Educación">Educación</option>
+                                    <option value="Psicología">Psicología</option>
+                                    <option value="Medio ambiente">Medio ambiente</option>
+                                    <option value="Ciencia de datos">Ciencia de datos</option>
+                                    <option value="Emprendimiento">Emprendimiento</option>
+                                    <option value="Arte y diseño">Arte y diseño</option>
+                                    <option value="Economía">Economía</option>
+                                    <option value="Robótica">Robótica</option>
+                                    <option value="Innovación">Innovación</option>
+                                </select>
+                            </div>
+
+                            <!-- Rol preferido -->
+                            <div class="mb-4">
                                 <label for="rol_preferido" class="form-label fw-semibold">
-                                    <i class="fas  me-2 text-primary"></i> 
+                                    <i class="fas fa-user-tag me-2 text-primary"></i>Rol Preferido en Equipos
                                 </label>
                                 <select class="form-select form-select-lg" id="rol_preferido" required>
-                                    <option value="">rol Preferido</option>
-                                    <option value="">Líder</option>
-                                    <option value="">Investigador</option>
-                                    <option value="">Diseñador</option>
-                                    <option value="">Programador</option>
-                                    <option value="">Documentador</option>
-                                    <option value="">Presentador</option>
-                                    <option value="">Analista</option>
-                                    <option value="">Coordinador</option>
+                                    <option value="">Selecciona tu rol preferido</option>
+                                    <option value="Líder">Líder</option>
+                                    <option value="Investigador">Investigador</option>
+                                    <option value="Diseñador">Diseñador</option>
+                                    <option value="Programador">Programador</option>
+                                    <option value="Documentador">Documentador</option>
+                                    <option value="Presentador">Presentador</option>
+                                    <option value="Analista">Analista</option>
+                                    <option value="Coordinador">Coordinador</option>
                                 </select>
-                           
                             </div>
 
-                            <button type="submit" class="btn  btn-lg w-30 mb-3" id="botonomitir">
-                                <i class="fas  me-2"></i>omitir
-                            </button>
-
-                            <button type="submit" class="btn btn-primary btn-lg w-30 mb-3" id="botonaceptar">
-                                <i class="fas  me-2"></i>Aceptar
-                            </button>
-
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-secondary btn-lg w-50" id="botonomitir">
+                                    <i class="fas fa-times me-2"></i>Omitir
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg w-50" id="botonaceptar">
+                                    <i class="fas fa-check me-2"></i>Guardar Perfil
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>                
-
             </div>
         </div>
     </div>
-        <!-- Bootstrap JS -->
+    
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 para alertas bonitas -->
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Nuestro JS -->
     <script src="../js/perfilacademico.js"></script>

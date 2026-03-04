@@ -1,10 +1,8 @@
-/* frontend/css/register.css */
+/* frontend/css/perfilacademico.css */
 :root {
     --verde-pastel-1: #A8E6CF;
     --verde-pastel-2: #9ED9CC;
     --verde-pastel-3: #8EC9C1;
-    --verde-pastel-4: #E5F9E0;
-    --verde-pastel-5: #CCF0E0;
 }
 
 body {
@@ -28,17 +26,44 @@ body {
     color: #2c5e5e;
 }
 
-.form-control, .form-select {
+/* Estilo para selects múltiples */
+select[multiple] {
+    height: auto !important;
+    min-height: 120px;
+    border: 2px solid #e0e0e0;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+select[multiple] option {
+    padding: 8px 12px;
+    margin: 2px 0;
+    border-radius: 6px;
+}
+
+select[multiple] option:checked {
+    background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+    color: #2c5e5e;
+}
+
+select[multiple]:focus {
+    border-color: var(--verde-pastel-2);
+    box-shadow: 0 0 0 0.2rem rgba(158, 217, 204, 0.25);
+}
+
+/* Estilo para selects normales */
+.form-select {
     border: 2px solid #e0e0e0;
     padding: 0.75rem;
     transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-select:focus {
     border-color: var(--verde-pastel-2);
     box-shadow: 0 0 0 0.2rem rgba(158, 217, 204, 0.25);
 }
 
+/* Botones */
 .btn-primary {
     background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
     border: none;
@@ -46,7 +71,7 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     color: #2c5e5e;
     border: 1px solid var(--verde-pastel-3);
 }
@@ -58,34 +83,23 @@ body {
     color: #1a3f3f;
 }
 
-.btn-primary:active {
-    transform: translateY(0);
+.btn-secondary {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    color: #6c757d;
 }
 
-/* Estilo para campos readonly */
-.form-control[readonly] {
-    background-color: #f8f9fa;
-    cursor: not-allowed;
+.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+    color: #495057;
 }
 
-/* Animación de carga */
-.spinner-border {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-right: 0.5rem;
-    color: #2c5e5e;
-}
-
-/* Links */
-a {
-    color: var(--verde-pastel-3);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: var(--verde-pastel-2);
-    text-decoration: underline;
+/* Texto pequeño de ayuda */
+.text-muted {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
 }
 
 /* Responsive */
@@ -96,5 +110,9 @@ a:hover {
     
     .card-header h2 {
         font-size: 1.8rem;
+    }
+    
+    select[multiple] {
+        min-height: 100px;
     }
 }
