@@ -83,10 +83,21 @@ const API_URL = 'http://localhost:3000/api';
             localStorage.setItem('user', JSON.stringify(data.user));
             
             mostrarAlerta('success', 'Iniciando sesión...');
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
+            /* --- ADDED START: si viene del registro, dirigir al perfil académico --- */
+            const justRegistered = localStorage.getItem('justRegistered');
+            if (justRegistered === 'true') {
+                // eliminar la marca para que no vuelva a redirigir en futuros logins
+                localStorage.removeItem('justRegistered');
+                // opcional: podríamos usar los datos guardados en 'datosRegistro' en perfil
+                setTimeout(() => {
+                    window.location.href = 'perfilacademico.html';
+                }, 800);
+            } else {
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            }
+            /* --- ADDED END --- */
         } else {
             mostrarAlerta('error', data.error || 'Credenciales incorrectas');
             setLoading(false);

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Academico - SkillMatch</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Nuestro CSS -->
+    <link rel="stylesheet" href="../css/perfilacademico.css">
+</head>
+<body class="bg-light">  
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <!-- cabecera -->
+                    <div class="card-header bg-primary text-white text-center py-4 rounded-top-4" >
+                        <i class="fas fa-handshake fa-3x mb-3"></i>
+                        <h2 class="fw-bold">SkillMatch</h2>
+                        <p class="mb-0">Añade tus intereses</p>
+                    </div>
+                    <div class="card-body p4">
+                        <form id="perilform">
+                             <!-- intereses academicos -->
+                            <div class="">
+                                <label for="intereses" class="form-label fw-semibold">
+                                    <i class="fas  me-2 text-primary"></i> 
+                                </label>
+                                <select class="form-select form-select-lg" id="intereses" required>
+                                    <option value="">Intereses Academicos</option>
+                                    <option value="1">Programación</option>
+                                    <option value="2">Diseño Grafico</option>
+                                    <option value="3">ciencia de datos </option>
+                                    <option value="4">Inteligencia ariticial</option>
+                                    <option value="5">Investigación</option>
+                                    <option value="6">Matemáticas</option>
+                                    <option value="7">Electrónica</option>
+                                    <option value="8">Educación</option>
+                                    <option value="8">Medio Ambiente </option>
+                                    <option value="8">Comunicación</option>
+                                    <option value="8">Innovación Tecnológica</option>
+                                </select>
+                            </div>
+                            <!-- Habilidades -->
+                            <div class="mb-3">
+                                <label for="habilidades" class="form-label fw-semibold">
+                                    <i class="fas  me-2 text-primary"></i> 
+                                </label>
+                                <select class="form-select form-select-lg" id="habilidades" required>
+                                    <option value="">habilidades</option>
+                                    <option value="">Trabajo en equipo</option>
+                                    <option value="">Liderazgo</option>
+                                    <option value="">Comunicación oral</option>
+                                    <option value="">Comunicación escrita</option>
+                                    <option value="">Resolución de problemas</option>
+                                    <option value="">Gestión de proyectos</option>
+                                    <option value="">Diseño</option>
+                                    <option value="">Programación</option>
+                                    <option value="">Investigación</option>
+                                    <option value="">Organización</option>
+                                    <option value="">Análisis crítico</option>
+                                </select>
+                            </div>
+                            <!-- tipos de proyectadas -->
+                            <div class="mb-3">
+                                <label for="tipos_De_proyectos" class="form-label fw-semibold">
+                                    <i class="fas  me-2 text-primary"></i> 
+                                </label>
+                                <select class="form-select form-select-lg" id="tipos_De_proyectos" required>
+                                    <option value="">tipos de proyecto</option>
+                                    <option value="">Proyectos de investigación</option>
+                                    <option value="">Proyectos sociales</option>
+                                    <option value="">Proyectos de desarrollo (software/app)</option>
+                                    <option value="">Proyectos creativos o artísticos</option>
+                                    <option value="">Proyectos académicos</option>
+                                    <option value="">Proyectos ambientales</option>
+                                    <option value="">Proyectos empresariales o de emprendimiento</option>
+                                    <option value="">Proyectos tecnológicos</option>
+                                </select>
+
+                            <!-- temas que te gustan aprender -->
+                            <div class="mb-3">
+                                <label for="temas_que_te_gustan" class="form-label fw-semibold">
+                                    <i class="fas  me-2 text-primary"></i> 
+                                </label>
+                                <select class="form-select form-select-lg" id="temas_que_te_gustan" required>
+                                    <option value="">Temas que te gustan Aprender</option>
+                                    <option value="">Inteligencia artificial</option>
+                                    <option value="">Programación</option>
+                                    <option value="">Educación</option>
+                                    <option value="">Psicología</option>
+                                    <option value="">Medio ambiente</option>
+                                    <option value="">Ciencia de datos</option>
+                                    <option value="">Emprendimiento</option>
+                                    <option value="">Arte y diseño</option>
+                                    <option value="">Economía</option>
+                                    <option value="">Robótica</option>
+                                    <option value="">Innovación</option>
+                                </select>
+
+                            <!-- rol preferido -->
+                            
+                            <div class="mb-3">
+                                <label for="rol_preferido" class="form-label fw-semibold">
+                                    <i class="fas  me-2 text-primary"></i> 
+                                </label>
+                                <select class="form-select form-select-lg" id="rol_preferido" required>
+                                    <option value="">rol Preferido</option>
+                                    <option value="">Líder</option>
+                                    <option value="">Investigador</option>
+                                    <option value="">Diseñador</option>
+                                    <option value="">Programador</option>
+                                    <option value="">Documentador</option>
+                                    <option value="">Presentador</option>
+                                    <option value="">Analista</option>
+                                    <option value="">Coordinador</option>
+                                </select>
+                           
+                            </div>
+
+                            <button type="submit" class="btn  btn-lg w-30 mb-3" id="botonomitir">
+                                <i class="fas  me-2"></i>omitir
+                            </button>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-30 mb-3" id="botonaceptar">
+                                <i class="fas  me-2"></i>Aceptar
+                            </button>
+
+                        </form>
+                    </div>
+                </div>                
+
+            </div>
+        </div>
+    </div>
+        <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 para alertas bonitas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Nuestro JS -->
+    <script src="../js/perfilacademico.js"></script>
+</body>
+</html>

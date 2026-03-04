@@ -147,6 +147,12 @@ registerForm.addEventListener('submit', async (e) => {
                 universidad: datos.universidad
             }));
 
+            /* --- ADDED START: marcar que el usuario acaba de registrarse --- */
+            // Usado para redirigir al completar el primer login al perfil académico
+            localStorage.setItem('justRegistered', 'true');
+            localStorage.setItem('registeredEmail', datos.email);
+            /* --- ADDED END --- */
+
             // Redirigir al login después de 2 segundos
             setTimeout(() => {
                 window.location.href = 'login.html';
