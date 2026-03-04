@@ -78,30 +78,35 @@ const API_URL = 'http://localhost:3000/api';
         const data = await response.json();
 
         if (response.ok) {
-            // Guardar token en localStorage
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            mostrarAlerta('success', 'Iniciando sesión...');
-            /* --- ADDED START: si viene del registro, dirigir al perfil académico --- */
-            const justRegistered = localStorage.getItem('justRegistered');
+        // Guardar token en localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        console.log('Usuario logueado:', data.user); // 👈 VERIFICAR EN CONSOLA
+        console.log('Rol del usuario:', data.user.rol); // 👈 VERIFICAR EN CONSOLA
+        
+        mostrarAlerta('success', 'Iniciando sesión...');
+        
+        /* --- VERIFICAR SI VIENE DEL REGISTRO --- */
+        const justRegistered = localStorage.getItem('justRegistered');
+        
+        setTimeout(() => {
             if (justRegistered === 'true') {
-                // eliminar la marca para que no vuelva a redirigir en futuros logins
+                // Caso 1: Usuario recién registrado → va a completar perfil
                 localStorage.removeItem('justRegistered');
-                // opcional: podríamos usar los datos guardados en 'datosRegistro' en perfil
-                setTimeout(() => {
-                    window.location.href = 'perfilacademico.html';
-                }, 800);
-            } else {
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+                window.location.href = 'perfilacademico.html';
+            } 
+            else if (data.user.rol === 'admin') { // 👈 ESTA ES LA CONDICIÓN CLAVE
+                // Caso 2: Es administrador → va al panel admin
+                console.log('Redirigiendo a admin.html');
+                window.location.href = 'admin.html';
+            } 
+            else {
+                // Caso 3: Usuario normal → va al dashboard
+                window.location.href = 'dashboard.html';
             }
-            /* --- ADDED END --- */
-        } else {
-            mostrarAlerta('error', data.error || 'Credenciales incorrectas');
-            setLoading(false);
-        }
+        }, 1500);
+    }
 
     } catch (error) {
         console.error('Error:', error);
