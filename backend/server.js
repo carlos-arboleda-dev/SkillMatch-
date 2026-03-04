@@ -2,6 +2,9 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const perfilRoutes = require('./routes/perfilroutes');
+const adminRoutes = require('./routes/adminroutes');
+
 
 // Cargar variables de entorno
 dotenv.config();
@@ -24,6 +27,10 @@ const authRoutes = require('./routes/authroutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/perfil', perfilRoutes);
+
+
 
 // Iniciar el servidor
 app.listen(PORT, () => {

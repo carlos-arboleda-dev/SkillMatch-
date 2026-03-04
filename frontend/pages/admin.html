@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - SkillMatch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --verde-pastel-1: #A8E6CF;
+            --verde-pastel-2: #9ED9CC;
+            --verde-pastel-3: #8EC9C1;
+        }
+        body {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+            min-height: 100vh;
+        }
+        .admin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: #2c5e5e;
+            border: 1px solid var(--verde-pastel-3);
+        }
+        .table th {
+            background-color: var(--verde-pastel-1);
+            color: #2c5e5e;
+        }
+        .btn-admin {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            color: #2c5e5e;
+            border: 1px solid var(--verde-pastel-3);
+        }
+        .btn-admin:hover {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            color: #1a3f3f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#" style="color: #2c5e5e;">
+                    <i class="fas fa-handshake me-2"></i>SkillMatch Admin
+                </a>
+                <div class="d-flex">
+                    <span class="navbar-text me-3" id="adminName"></span>
+                    <button class="btn btn-outline-danger btn-sm" id="btnLogout">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tarjetas de estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <h5>Total Usuarios</h5>
+                    <h2 id="totalUsuarios">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <h5>Estudiantes</h5>
+                    <h2 id="totalEstudiantes">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <h5>Administradores</h5>
+                    <h2 id="totalAdmins">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="admin-card">
+            <h4 class="mb-3">Gestión de Usuarios</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Código</th>
+                            <th>Programa</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuarios">
+                        <tr>
+                            <td colspan="7" class="text-center">Cargando usuarios...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
