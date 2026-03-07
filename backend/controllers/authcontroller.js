@@ -90,7 +90,7 @@ const login = async (req, res) => {
                 nombre: user.nombre_completo 
             },
             process.env.JWT_SECRET || 'SkillMatch2025SecretKey!',
-            { expiresIn: '24h' }
+            { expiresIn: '30d' }
         );
 
         // Responder con éxito (AGREGAMOS user.rol)

@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const perfilRoutes = require('./routes/perfilroutes');
 const adminRoutes = require('./routes/adminroutes');
+const recomendacionRoutes = require('./routes/recomendacionroutes');
 
 
 // Cargar variables de entorno
@@ -29,6 +30,8 @@ const authRoutes = require('./routes/authroutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/perfil', perfilRoutes);
+app.use('/api/recomendaciones', recomendacionRoutes);
+
 
 
 

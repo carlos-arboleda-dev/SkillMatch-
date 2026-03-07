@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar - SkillMatch</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --verde-pastel-1: #A8E6CF;
+            --verde-pastel-2: #9ED9CC;
+            --verde-pastel-3: #8EC9C1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: var(--verde-pastel-3);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-icon {
+            color: var(--verde-pastel-3);
+            font-size: 1.3rem;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--verde-pastel-2);
+            transform: scale(1.1);
+        }
+        
+        .search-container {
+            background: white;
+            border-radius: 50px;
+            padding: 0.3rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        .search-input {
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            width: 100%;
+            outline: none;
+            font-size: 1.1rem;
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            color: #2c5e5e;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .search-btn:hover {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            transform: translateY(-2px);
+        }
+        
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: none;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .avatar-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .afinidad-badge {
+            background: var(--verde-pastel-1);
+            color: #2c5e5e;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .btn-add-project {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            color: #2c5e5e;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-add-project:hover {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            transform: translateY(-2px);
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--verde-pastel-2);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .btn-project {
+            border: 2px solid var(--verde-pastel-2);
+            border-radius: 20px;
+            padding: 0.3rem 1rem;
+            color: #2c5e5e;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-project:hover {
+            background: var(--verde-pastel-1);
+        }
+        
+        .section-title {
+            color: #2c5e5e;
+            font-weight: 600;
+            margin: 2rem 0 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-handshake me-2"></i>SkillMatch
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="buscar.html" class="nav-icon active" title="Buscar">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="chats.html" class="nav-icon" title="Chats">
+                    <i class="fas fa-comment"></i>
+                </a>
+                <a href="notificaciones.html" class="nav-icon" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <a href="perfil.html" class="nav-icon" title="Perfil">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container py-4">
+        <!-- Buscador -->
+        <div class="search-container d-flex">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar personas, intereses, proyectos...">
+            <button class="search-btn" id="searchBtn">
+                <i class="fas fa-search me-2"></i>Buscar
+            </button>
+        </div>
+
+        <!-- Filtros rápidos -->
+        <div class="d-flex gap-2 justify-content-center mb-5 flex-wrap">
+            <span class="afinidad-badge" onclick="buscarPorTag('programación')" style="cursor: pointer;">Programación</span>
+            <span class="afinidad-badge" onclick="buscarPorTag('diseño')" style="cursor: pointer;">Diseño</span>
+            <span class="afinidad-badge" onclick="buscarPorTag('investigación')" style="cursor: pointer;">Investigación</span>
+            <span class="afinidad-badge" onclick="buscarPorTag('educación')" style="cursor: pointer;">Educación</span>
+        </div>
+
+        <!-- Sección: Personas con intereses parecidos -->
+        <h3 class="section-title">
+            <i class="fas fa-users me-2"></i>Personas con intereses parecidos
+        </h3>
+        <div id="recomendaciones-container">
+            <!-- Se llenará con JavaScript -->
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                <p>Cargando recomendaciones...</p>
+            </div>
+        </div>
+
+        <!-- Sección: Proyectos relacionados -->
+        <h3 class="section-title mt-5">
+            <i class="fas fa-project-diagram me-2"></i>Proyectos relacionados
+        </h3>
+        <div id="proyectos-container">
+            <!-- Se llenará con JavaScript -->
+            <div class="text-center text-muted py-4">
+                <p>No hay proyectos relacionados aún</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Nuestro JS -->
+    <script src="../js/buscar.js"></script>
+</body>
+</html>
