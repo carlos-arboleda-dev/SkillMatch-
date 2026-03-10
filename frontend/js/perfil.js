@@ -41,9 +41,54 @@ async function cargarPerfil() {
                     `<span class="badge bg-success bg-opacity-25 text-dark p-2">${i}</span>`
                 ).join('');
             }
+
+            // Cargar proyectos
+            await cargarProyectos();
         }
     } catch (error) {
         console.error('Error cargando perfil:', error);
+    }
+}
+
+// Función para cargar proyectos del usuario
+async function cargarProyectos() {
+    try {
+        const response = await fetch(`${API_URL}/proyectos/mis-proyectos`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const proyectos = await response.json();
+
+        const proyectosContainer = document.getElementById('proyectosContainer');
+        if (proyectosContainer) {
+            if (proyectos.length === 0) {
+                proyectosContainer.innerHTML = '<p class="text-muted">No tienes proyectos creados aún. <a href="crear_proyecto.html">Crear uno</a></p>';
+            } else {
+                proyectosContainer.innerHTML = proyectos.map(proyecto => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">${proyecto.nombre}</h6>
+                            <p class="card-text">${proyecto.descripcion}</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Duración: ${proyecto.duracion}</small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Integrantes: ${proyecto.numero_integrantes}</small>
+                                </div>
+                            </div>
+                            <small class="text-muted">Fecha inicio: ${new Date(proyecto.fecha_inicio).toLocaleDateString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error cargando proyectos:', error);
+        const proyectosContainer = document.getElementById('proyectosContainer');
+        if (proyectosContainer) {
+            proyectosContainer.innerHTML = '<p class="text-danger">Error cargando proyectos</p>';
+        }
     }
 }
 

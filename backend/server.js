@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const perfilRoutes = require('./routes/perfilroutes');
 const adminRoutes = require('./routes/adminroutes');
 const recomendacionRoutes = require('./routes/recomendacionroutes');
+const proyectoRoutes = require('./routes/proyectoRoutes');
 
 
 // Cargar variables de entorno
@@ -31,6 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/perfil', perfilRoutes);
 app.use('/api/recomendaciones', recomendacionRoutes);
+app.use('/api/proyectos', proyectoRoutes);
 
 
 

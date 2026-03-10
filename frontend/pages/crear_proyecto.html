@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Proyecto - SkillMatch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/crear_proyecto.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header text-center">
+                        <i class="fas fa-handshake fa-3x mb-3" style="color: #A8E6CF;"></i>
+                        <h2 class="fw-bold">SkillMatch</h2>
+                        <p class="mb-0">Crear Nuevo Proyecto</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="crearProyectoForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label fw-semibold">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del proyecto" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="duracion" class="form-label fw-semibold">Duración</label>
+                                    <input type="text" class="form-control" id="duracion" name="duracion" placeholder="Ej: 3 meses" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="integrantes" class="form-label fw-semibold">N° de Integrantes</label>
+                                    <input type="number" class="form-control" id="integrantes" name="integrantes" min="1" placeholder="Número de integrantes" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fechaInicio" class="form-label fw-semibold">Fecha Inicio</label>
+                                    <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="5" placeholder="Describe el proyecto..." required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button type="button" class="btn btn-secondary me-3" id="cancelar">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" form="crearProyectoForm" id="crearProyecto">Crear Proyecto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/crear_proyecto.js"></script>
+    <div class="modal fade" id="proyectoModal" tabindex="-1" aria-labelledby="proyectoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proyectoModalLabel">Proyecto creado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    Tu proyecto ha sido creado correctamente.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="volverPerfilBtn">Volver</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
