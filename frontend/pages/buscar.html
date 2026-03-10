@@ -160,6 +160,76 @@
             font-weight: 600;
             margin: 2rem 0 1.5rem;
         }
+
+        /* Botón de solicitud de amistad */
+        .btn-friend-request {
+            background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-friend-request:hover {
+            background: linear-gradient(135deg, #9ED9CC 0%, #8EC9C1 100%);
+            transform: scale(1.1);
+        }
+
+        /* Botón X para eliminar recomendación */
+        .btn-remove-recommendation {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc3545;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-remove-recommendation:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Ajuste para el botón de agregar a proyecto existente */
+        .btn-add-project {
+            background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-add-project:hover {
+            background: linear-gradient(135deg, #9ED9CC 0%, #8EC9C1 100%);
+            transform: scale(1.1);
+        }
+
+        /* Grupo de botones */
+        .d-flex.gap-2 {
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -170,6 +240,9 @@
                 <i class="fas fa-handshake me-2"></i>SkillMatch
             </a>
             <div class="d-flex align-items-center">
+                <a href="crear_proyecto.html" class="nav-icon" title="crear proyecto">
+                    <i class="fas fa-plus"></i>
+                </a>
                 <a href="buscar.html" class="nav-icon active" title="Buscar">
                     <i class="fas fa-search"></i>
                 </a>
@@ -179,9 +252,25 @@
                 <a href="notificaciones.html" class="nav-icon" title="Notificaciones">
                     <i class="fas fa-bell"></i>
                 </a>
-                <a href="perfil.html" class="nav-icon" title="Perfil">
-                    <i class="fas fa-user"></i>
-                </a>
+                <!-- Menú de perfil desplegable -->
+                <div class="dropdown">
+                    <button class="btn nav-icon dropdown-toggle" type="button" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; padding: 0;">
+                        <i class="fas fa-user-circle fa-2x" style="color: var(--verde-pastel-3);"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown" style="border-radius: 15px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <li>
+                            <a class="dropdown-item" href="perfil.html">
+                                <i class="fas fa-user me-2" style="color: var(--verde-pastel-3);"></i>Ver Perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" id="cerrarSesion">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
@@ -218,12 +307,13 @@
 
         <!-- Sección: Proyectos relacionados -->
         <h3 class="section-title mt-5">
-            <i class="fas fa-project-diagram me-2"></i>Proyectos relacionados
+            <i class="fas fa-project-diagram me-2"></i>Proyectos relacionados con tus intereses
         </h3>
-        <div id="proyectos-container">
+        <div id="proyectos-relacionados" class="mb-4">
             <!-- Se llenará con JavaScript -->
             <div class="text-center text-muted py-4">
-                <p>No hay proyectos relacionados aún</p>
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Cargando proyectos recomendados...</p>
             </div>
         </div>
     </div>
@@ -234,5 +324,89 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Nuestro JS -->
     <script src="../js/buscar.js"></script>
+
+    <script>
+        // Cargar proyectos recomendados basados en intereses
+        async function cargarProyectosRecomendados() {
+            try {
+                const response = await fetch(`${API_URL}/recomendaciones/proyectos-por-intereses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.proyectos.length > 0) {
+                    const proyectosContainer = document.getElementById('proyectos-relacionados');
+                    if (proyectosContainer) {
+                        proyectosContainer.innerHTML = data.proyectos.map(p => `
+                            <div class="project-card d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${p.nombre}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>${p.autor || 'Autor desconocido'}
+                                    </small>
+                                </div>
+                                <div>
+                                    <button class="btn-project me-2" onclick="invitarAProyecto(${p.id})">
+                                        <i class="fas fa-user-plus me-1"></i>Invitar
+                                    </button>
+                                    <button class="btn-project" onclick="unirseAProyecto(${p.id}, '${p.nombre}')">
+                                        <i class="fas fa-sign-in-alt me-1"></i>Unirse
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando proyectos recomendados:', error);
+            }
+        }
+
+        // Función para unirse a proyecto
+        window.unirseAProyecto = function(proyectoId, proyectoNombre) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Te has unido!',
+                text: `Ahora eres parte de: ${proyectoNombre}`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        };
+
+        // Cargar proyectos recomendados al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('proyectos-relacionados')) {
+                cargarProyectosRecomendados();
+            }
+        });
+    </script>
+    <script>
+        // Manejar cierre de sesión
+        document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                text: '¿Estás seguro que deseas salir?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#9ED9CC',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Limpiar localStorage
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('justRegistered');
+                    
+                    // Redirigir al login
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

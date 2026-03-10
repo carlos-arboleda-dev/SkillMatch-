@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const Proyecto = require('../models/proyecto');
 const { verificarToken } = require('../middleware/auth');
+const proyectoController = require('../controllers/proyectoController');
+
 
 // Crear un nuevo proyecto (requiere autenticación)
 router.post('/crear', verificarToken, async (req, res) => {
@@ -50,5 +52,9 @@ router.get('/', verificarToken, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
+
+router.get('/feed', verificarToken, proyectoController.obtenerFeed);
+router.get('/relacionados/:proyectoId', verificarToken, proyectoController.obtenerRelacionados);
+
 
 module.exports = router;

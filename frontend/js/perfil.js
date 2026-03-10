@@ -92,6 +92,85 @@ async function cargarProyectos() {
     }
 }
 
+
+// Cargar datos del perfil
+async function cargarPerfil() {
+    try {
+        // Mostrar datos básicos del usuario
+        document.getElementById('nombreUsuario').textContent = user.nombre || 'Usuario';
+        document.getElementById('carrera').textContent = user.programa || 'Ingeniería de Sistemas';
+        
+        // Cargar perfil académico
+        const response = await fetch(`${API_URL}/perfil/obtener`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.perfil) {
+            const perfil = data.perfil;
+            console.log('Perfil cargado:', perfil); // Para depurar
+            
+            // 👇 MOSTRAR FOTO SI EXISTE
+            if (perfil.foto_perfil) {
+                const fotoPerfil = document.getElementById('fotoPerfil');
+                if (fotoPerfil) {
+                    fotoPerfil.src = perfil.foto_perfil;
+                }
+            }
+            
+            // Mostrar ciudad
+            if (document.getElementById('ciudad')) {
+                document.getElementById('ciudad').textContent = perfil.ciudad || 'Pasto';
+            }
+            
+            // 👇 MOSTRAR INTERESES (CORREGIDO: perfil.interes_academico)
+            const interesesContainer = document.getElementById('interesesContainer');
+            if (interesesContainer) {
+                if (perfil.interes_academico && perfil.interes_academico.length > 0) {
+                    interesesContainer.innerHTML = perfil.interes_academico.map(i => 
+                        `<span class="badge bg-success bg-opacity-25 text-dark p-2">${i}</span>`
+                    ).join('');
+                } else {
+                    interesesContainer.innerHTML = '<p class="text-muted">No has agregado intereses aún. <a href="editar-perfil.html">Agregar</a></p>';
+                }
+            }
+
+            // Cargar proyectos
+            await cargarProyectos();
+        }
+    } catch (error) {
+        console.error('Error cargando perfil:', error);
+    }
+}
+
+// Manejar cierre de sesión
+document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: '¿Estás seguro que deseas salir?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#9ED9CC',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Limpiar localStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('justRegistered');
+                
+                // Redirigir al login
+                window.location.href = 'login.html';
+            }
+        });
+});
+
+
 // Función para ir a editar perfil
 window.editarPerfil = function() {
     window.location.href = 'editar-perfil.html';

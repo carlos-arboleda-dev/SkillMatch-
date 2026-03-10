@@ -29,7 +29,7 @@ function mostrarUsuarios(usuarios) {
     }
 
     recomendacionesContainer.innerHTML = usuarios.map(usuario => `
-        <div class="user-card">
+        <div class="user-card" data-usuario-id="${usuario.codigo_estudiantil}">
             <div class="d-flex align-items-center mb-3">
                 <div class="avatar-circle me-3">
                     ${getIniciales(usuario.nombre_completo)}
@@ -45,9 +45,22 @@ function mostrarUsuarios(usuarios) {
                                 <i class="fas fa-heart me-1"></i>${usuario.afinidad || 0}% coincidencia
                             </span>
                         </div>
-                        <button class="btn-add-project" onclick="agregarAProyecto('${usuario.codigo_estudiantil}', '${usuario.nombre_completo}')">
-                            <i class="fas fa-plus-circle me-1"></i>Agregar a Proyecto
-                        </button>
+                        <div class="d-flex gap-2">
+                            <!-- Botón de solicitud de amistad (logo de persona) -->
+                            <button class="btn-friend-request" onclick="enviarSolicitudAmistad('${usuario.codigo_estudiantil}', '${usuario.nombre_completo}')" title="Enviar solicitud de amistad">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            
+                            <!-- Botón X para eliminar/quitar recomendación -->
+                            <button class="btn-remove-recommendation" onclick="quitarRecomendacion(this)" title="Eliminar recomendación">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            
+                            <!-- Botón original de agregar a proyecto (opcional, lo dejamos) -->
+                            <button class="btn-add-project" onclick="agregarAProyecto('${usuario.codigo_estudiantil}', '${usuario.nombre_completo}')" title="Agregar a proyecto">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -92,6 +105,7 @@ function mostrarProyectos(proyectos) {
                 <a href="#" class="btn-project" onclick="entrarAProyecto(${proyecto.id})">
                     <i class="fas fa-sign-in-alt me-1"></i>Entrar
                 </a>
+                
             </div>
         </div>
     `).join('');
@@ -191,6 +205,89 @@ function mostrarAlerta(tipo, mensaje) {
     });
 }
 
+
+// Función para enviar solicitud de amistad
+function enviarSolicitudAmistad(codigoUsuario, nombreUsuario) {
+    // Aquí puedes agregar la lógica para enviar la solicitud al backend
+    console.log(`Solicitud de amistad enviada a ${nombreUsuario} (${codigoUsuario})`);
+    
+    // Feedback visual
+    const boton = event.currentTarget;
+    const icono = boton.querySelector('i');
+    
+    // Cambiar temporalmente el icono a check
+    icono.className = 'fas fa-check';
+    boton.style.background = '#9ED9CC';
+    boton.style.color = '#2c5e5e';
+    
+    // Mostrar mensaje
+    Swal.fire({
+        icon: 'success',
+        title: 'Solicitud enviada',
+        text: `Solicitud de amistad enviada a ${nombreUsuario}`,
+        timer: 1500,
+        showConfirmButton: false
+    });
+    
+    // Restaurar después de 2 segundos
+    setTimeout(() => {
+        icono.className = 'fas fa-user-plus';
+        boton.style.background = '';
+        boton.style.color = '';
+    }, 2000);
+}
+
+// Función para quitar/quitar recomendación
+function quitarRecomendacion(boton) {
+    const userCard = boton.closest('.user-card');
+    const nombreUsuario = userCard.querySelector('h5').textContent;
+    
+    Swal.fire({
+        title: '¿Eliminar recomendación?',
+        text: `¿Seguro que quieres eliminar a ${nombreUsuario} de tus recomendaciones?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#9ED9CC',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Animación de desvanecimiento
+            userCard.style.transition = 'all 0.3s ease';
+            userCard.style.opacity = '0';
+            userCard.style.transform = 'translateX(100px)';
+            
+            setTimeout(() => {
+                userCard.remove();
+                
+                // Verificar si ya no hay más usuarios
+                const remainingCards = document.querySelectorAll('.user-card');
+                if (remainingCards.length === 0) {
+                    document.getElementById('recomendaciones-container').innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-users-slash fa-3x mb-3"></i>
+                            <p>No hay más recomendaciones</p>
+                        </div>
+                    `;
+                }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'Recomendación eliminada',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }, 300);
+        }
+    });
+}
+
+// Hacer las funciones globales
+window.enviarSolicitudAmistad = enviarSolicitudAmistad;
+window.quitarRecomendacion = quitarRecomendacion;
+
 // Event listeners
 searchBtn.addEventListener('click', () => {
     buscarPorPalabra(searchInput.value);
@@ -208,3 +305,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // También podríamos cargar proyectos recomendados
     // cargarProyectosRecomendados();
 });
+
+
+    // Manejar cierre de sesión
+    document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: '¿Estás seguro que deseas salir?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#9ED9CC',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Limpiar localStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('justRegistered');
+                
+                // Redirigir al login
+                window.location.href = 'login.html';
+            }
+        });
+    });
