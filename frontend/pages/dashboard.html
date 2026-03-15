@@ -133,8 +133,9 @@
                 <a href="chats.html" class="nav-icon" title="Chats">
                     <i class="fas fa-comment"></i>
                 </a>
-                <a href="notificaciones.html" class="nav-icon" title="Notificaciones">
+                <a href="notificaciones.html" class="nav-icon" title="Notificaciones" id="notificacionesIcono">
                     <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;" id="notificacionesBadge">0</span>
                 </a>
                 <!-- Menú de perfil desplegable -->
                 <div class="dropdown">
@@ -236,6 +237,24 @@
                 e.currentTarget.classList.add('active');
             });
         });
+
+        // Actualizar badge de notificaciones
+        async function actualizarBadgeNotificaciones() {
+            const response = await fetch(`${API_URL}/notificaciones/contar`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            const badge = document.getElementById('notificacionesBadge');
+            if (badge) {
+                if (data.noLeidas > 0) {
+                    badge.textContent = data.noLeidas;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        actualizarBadgeNotificaciones();
     </script>
     <script>
         // Manejar cierre de sesión

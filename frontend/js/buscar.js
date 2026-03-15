@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Manejar cierre de sesión
-    document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
         e.preventDefault();
         
         Swal.fire({
@@ -332,3 +332,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+
+// Actualizar badge de notificaciones
+async function actualizarBadgeNotificaciones() {
+    const response = await fetch(`${API_URL}/notificaciones/contar`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    const badge = document.getElementById('notificacionesBadge');
+    if (badge) {
+        if (data.noLeidas > 0) {
+            badge.textContent = data.noLeidas;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+actualizarBadgeNotificaciones();

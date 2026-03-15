@@ -176,5 +176,23 @@ window.editarPerfil = function() {
     window.location.href = 'editar-perfil.html';
 };
 
+// Actualizar badge de notificaciones
+async function actualizarBadgeNotificaciones() {
+    const response = await fetch(`${API_URL}/notificaciones/contar`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    const badge = document.getElementById('notificacionesBadge');
+    if (badge) {
+        if (data.noLeidas > 0) {
+            badge.textContent = data.noLeidas;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+actualizarBadgeNotificaciones();
+
 // Cargar al iniciar
 document.addEventListener('DOMContentLoaded', cargarPerfil);

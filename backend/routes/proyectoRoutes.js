@@ -1,12 +1,14 @@
-// backend/routes/proyectoRoutes.js
 const express = require('express');
 const router = express.Router();
 const Proyecto = require('../models/proyecto');
-const { verificarToken } = require('../middleware/auth');
 const proyectoController = require('../controllers/proyectoController');
+const { verificarToken } = require('../middleware/auth');
 
 
-// Crear un nuevo proyecto (requiere autenticación)
+// Ruta para el feed (NUEVA)
+router.get('/feed', verificarToken, proyectoController.obtenerFeed);
+
+// Crear un nuevo proyecto
 router.post('/crear', verificarToken, async (req, res) => {
     try {
         console.log('Datos recibidos:', req.body);
@@ -42,7 +44,7 @@ router.get('/mis-proyectos', verificarToken, async (req, res) => {
     }
 });
 
-// Obtener todos los proyectos (para admin o búsqueda)
+// Obtener todos los proyectos
 router.get('/', verificarToken, async (req, res) => {
     try {
         const proyectos = await Proyecto.findAll();
@@ -53,8 +55,6 @@ router.get('/', verificarToken, async (req, res) => {
     }
 });
 
-router.get('/feed', verificarToken, proyectoController.obtenerFeed);
-router.get('/relacionados/:proyectoId', verificarToken, proyectoController.obtenerRelacionados);
-
+router.post('/:proyecto_id/unirse', verificarToken, proyectoController.unirseAProyecto);
 
 module.exports = router;

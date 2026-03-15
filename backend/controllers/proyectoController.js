@@ -1,10 +1,13 @@
-// backend/controllers/proyectoController.js
 const pool = require('../config/db');
+const jwt = require('jsonwebtoken'); 
+
 
 const proyectoController = {
-    // Obtener proyectos para el feed (con información del creador)
+    // Obtener proyectos para el feed
     async obtenerFeed(req, res) {
         try {
+            console.log('🔵 Ejecutando obtenerFeed');
+            
             const query = `
                 SELECT 
                     p.id,
@@ -14,14 +17,12 @@ const proyectoController = {
                     p.fecha_inicio,
                     p.numero_integrantes,
                     p.created_at,
+                    p.likes_count,
+                    p.comentarios_count,
                     u.id as creador_id,
                     u.nombre_completo as creador_nombre,
-                    u.codigo_estudiantil,
                     u.programa_academico,
-                    pf.foto_perfil,
-                    -- Datos simulados para likes y comentarios (luego los haremos reales)
-                    0 as likes,
-                    0 as comentarios
+                    pf.foto_perfil
                 FROM proyectos p
                 JOIN usuarios u ON p.creador_id = u.id
                 LEFT JOIN perfil_academico pf ON u.codigo_estudiantil = pf.codigo_estudiantil
@@ -31,25 +32,33 @@ const proyectoController = {
             
             const result = await pool.query(query);
             
-            // Formatear los datos para el frontend
-            const proyectos = result.rows.map(p => ({
-                id: p.id,
-                titulo: p.nombre,
-                descripcion: p.descripcion,
-                duracion: p.duracion,
-                fecha_inicio: p.fecha_inicio,
-                integrantes: p.numero_integrantes,
-                autor: {
-                    id: p.creador_id,
-                    nombre: p.creador_nombre,
-                    programa: p.programa_academico,
-                    foto: p.foto_perfil
-                },
-                tiempo: calcularTiempoRelativo(p.created_at),
-                categoria: determinarCategoria(p.nombre, p.descripcion),
-                likes: Math.floor(Math.random() * 50) + 5, // Temporal: números aleatorios
-                comentarios: Math.floor(Math.random() * 15) + 2 // Temporal
-            }));
+            // Formatear los datos
+            const proyectos = result.rows.map(p => {
+                // Calcular tiempo relativo
+                const tiempo = calcularTiempoRelativo(p.created_at);
+                
+                // Determinar categoría basada en el título/descripción
+                const categoria = determinarCategoria(p.nombre, p.descripcion);
+                
+                return {
+                    id: p.id,
+                    titulo: p.nombre,
+                    descripcion: p.descripcion,
+                    duracion: p.duracion,
+                    fecha_inicio: p.fecha_inicio,
+                    integrantes: p.numero_integrantes,
+                    autor: {
+                        id: p.creador_id,
+                        nombre: p.creador_nombre,
+                        programa: p.programa_academico,
+                        foto: p.foto_perfil
+                    },
+                    tiempo,
+                    categoria,
+                    likes: parseInt(p.likes_count) || 0,
+                    comentarios: parseInt(p.comentarios_count) || 0
+                };
+            });
             
             res.json({
                 success: true,
@@ -57,41 +66,61 @@ const proyectoController = {
             });
             
         } catch (error) {
-            console.error('Error obteniendo feed:', error);
+            console.error('Error en obtenerFeed:', error);
             res.status(500).json({ error: 'Error del servidor' });
         }
     },
 
-    // Obtener proyectos relacionados (podría interesarte)
-    async obtenerRelacionados(req, res) {
+    // Unirse a un proyecto
+    async unirseAProyecto(req, res) {
         try {
-            const { proyectoId } = req.params;
+            const token = req.header('Authorization')?.replace('Bearer ', '');
+            if (!token) {
+                return res.status(401).json({ error: 'Token requerido' });
+            }
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
+            const usuario_id = decoded.userId;
             
-            const query = `
-                SELECT 
-                    p.id,
-                    p.nombre,
-                    p.descripcion,
-                    p.creador_id,
-                    u.nombre_completo as creador_nombre,
-                    u.programa_academico,
-                    p.created_at
-                FROM proyectos p
-                JOIN usuarios u ON p.creador_id = u.id
-                WHERE p.id != $1
-                ORDER BY RANDOM()
-                LIMIT 3;
-            `;
+            const { proyecto_id } = req.params;
             
-            const result = await pool.query(query, [proyectoId]);
+            // Verificar si el proyecto existe
+            const proyectoQuery = await pool.query(
+                'SELECT creador_id, nombre FROM proyectos WHERE id = $1',
+                [proyecto_id]
+            );
+            
+            if (proyectoQuery.rows.length === 0) {
+                return res.status(404).json({ error: 'Proyecto no encontrado' });
+            }
+            
+            const proyecto = proyectoQuery.rows[0];
+            
+            // Verificar que no sea el dueño
+            if (proyecto.creador_id === usuario_id) {
+                return res.status(400).json({ error: 'Eres el dueño del proyecto' });
+            }
+            
+            // Aquí deberías crear una tabla de miembros_proyecto si no existe
+            // Por ahora simulamos que se unió correctamente
+            
+            // 👇 CREAR NOTIFICACIÓN AL DUEÑO
+            const Notificacion = require('../models/notificacion');
+            await Notificacion.create({
+                usuario_id: proyecto.creador_id,
+                tipo: 'union',
+                emisor_id: usuario_id,
+                proyecto_id,
+                contenido: `se ha unido a tu proyecto "${proyecto.nombre}"`
+            });
             
             res.json({
                 success: true,
-                proyectos: result.rows
+                message: 'Te has unido al proyecto'
             });
             
         } catch (error) {
-            console.error('Error obteniendo relacionados:', error);
+            console.error('Error al unirse:', error);
             res.status(500).json({ error: 'Error del servidor' });
         }
     }

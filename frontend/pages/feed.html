@@ -230,8 +230,9 @@
                 <a href="chats.html" class="nav-icon" title="Chats">
                     <i class="fas fa-comment"></i>
                 </a>
-                <a href="notificaciones.html" class="nav-icon" title="Notificaciones">
+                <a href="notificaciones.html" class="nav-icon" title="Notificaciones" id="notificacionesIcono">
                     <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;" id="notificacionesBadge">0</span>
                 </a>
                 <!-- Menú de perfil desplegable -->
                 <div class="dropdown">
@@ -262,6 +263,35 @@
         <div class="text-center text-muted py-5" id="loading-spinner">
             <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
             <p>Cargando proyectos...</p>
+        </div>
+    </div>
+
+    <!-- Modal de comentarios (oculto por defecto) -->
+    <div class="modal fade" id="comentariosModal" tabindex="-1" aria-labelledby="comentariosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 20px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);">
+                    <h5 class="modal-title" id="comentariosModalLabel">
+                        <i class="fas fa-comments me-2"></i>Comentarios
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;" id="comentariosContainer">
+                    <!-- Los comentarios se cargarán aquí -->
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                        <p>Cargando comentarios...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="nuevoComentario" placeholder="Escribe un comentario...">
+                        <button class="btn btn-primary" type="button" id="enviarComentarioBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Enviar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
