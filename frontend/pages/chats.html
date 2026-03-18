@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chats - SkillMatch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --verde-pastel-1: #A8E6CF;
+            --verde-pastel-2: #9ED9CC;
+            --verde-pastel-3: #8EC9C1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            color: var(--verde-pastel-3);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-icon {
+            color: var(--verde-pastel-3);
+            font-size: 1.3rem;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--verde-pastel-2);
+            transform: scale(1.1);
+        }
+        
+        .chats-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 1rem;
+            padding: 2rem 1rem;
+            height: calc(100vh - 100px);
+        }
+        
+        .chats-list {
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chats-list-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .chats-list-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .chat-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .chat-item.active {
+            background-color: var(--verde-pastel-1);
+            border-left: 4px solid var(--verde-pastel-3);
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            color: #2c5e5e;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .chat-context {
+            font-size: 0.8rem;
+            color: #6c757d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-window {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-header-info h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .chat-header-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .message.sent {
+            justify-content: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            word-wrap: break-word;
+        }
+        
+        .message.received .message-bubble {
+            background-color: #e9ecef;
+            color: #2c5e5e;
+        }
+        
+        .message.sent .message-bubble {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            color: white;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .chat-input-area {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .chat-input-area input {
+            border: 1px solid var(--verde-pastel-2);
+            border-radius: 25px;
+            padding: 0.75rem 1.25rem;
+            outline: none;
+        }
+        
+        .chat-input-area input:focus {
+            border-color: var(--verde-pastel-3);
+            box-shadow: 0 0 0 0.2rem rgba(142, 201, 193, 0.25);
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .chats-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .chats-list {
+                width: 100%;
+            }
+            
+            .message-bubble {
+                max-width: 100%;
+            }
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-handshake me-2"></i>SkillMatch
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="crear_proyecto.html" class="nav-icon" title="Crear proyecto">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a href="buscar.html" class="nav-icon" title="Buscar">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="chats.html" class="nav-icon active" title="Chats">
+                    <i class="fas fa-comment"></i>
+                </a>
+                <a href="notificaciones.html" class="nav-icon" title="Notificaciones" id="notificacionesIcono">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;" id="notificacionesBadge">0</span>
+                </a>
+                <!-- Menú de perfil desplegable -->
+                <div class="dropdown">
+                    <button class="btn nav-icon dropdown-toggle" type="button" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; padding: 0;">
+                        <i class="fas fa-user-circle fa-2x" style="color: var(--verde-pastel-3);"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown" style="border-radius: 15px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <li>
+                            <a class="dropdown-item" href="perfil.html">
+                                <i class="fas fa-user me-2" style="color: var(--verde-pastel-3);"></i>Ver Perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" id="cerrarSesion">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenedor de chats -->
+    <div class="chats-container">
+        <!-- Lista de chats -->
+        <div class="chats-list scrollbar-hide">
+            <div class="chats-list-header">
+                <i class="fas fa-comments me-2"></i>Chats:
+            </div>
+            <div class="chats-list-content" id="chatsList">
+                <!-- Se llenará con JavaScript -->
+            </div>
+        </div>
+
+        <!-- Ventana de chat -->
+        <div class="chat-window" id="chatWindow">
+            <div class="empty-state">
+                <i class="fas fa-comment-dots"></i>
+                <p>Selecciona un chat para comenzar</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/chats.js"></script>
+</body>
+</html>
