@@ -211,6 +211,77 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* Botón de invitar */
+        .btn-invite {
+            background: linear-gradient(135deg, #9ED9CC 0%, #8EC9C1 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.3rem 1.2rem;
+            color: #2c5e5e;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-invite:hover {
+            background: linear-gradient(135deg, #8EC9C1 0%, #7EB8B0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Modal para invitar amigos */
+        .amigos-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .amigo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.3s ease;
+        }
+
+        .amigo-item:hover {
+            background: #f8f9fa;
+        }
+
+        .amigo-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .amigo-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            font-weight: bold;
+        }
+
+        .btn-invitar-amigo {
+            background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 0.3rem 1rem;
+            color: #2c5e5e;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-invitar-amigo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -290,6 +361,32 @@
                             <i class="fas fa-paper-plane me-2"></i>Enviar
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para invitar amigos a proyecto -->
+    <div class="modal fade" id="invitarAmigosModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-friends me-2"></i>Invitar amigos a <span id="proyectoNombreModal"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="amigosLista" class="amigos-list">
+                        <!-- Se llenará con JS -->
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p>Cargando amigos...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

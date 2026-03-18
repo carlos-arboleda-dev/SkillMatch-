@@ -8,6 +8,100 @@ if (!token) {
 
 let proyectoActualId = null;
 
+// Variable global para el proyecto actual
+let proyectoActualInvitar = null;
+
+// Mostrar modal para invitar amigos
+window.mostrarAmigosParaInvitar = async function(proyectoId, proyectoTitulo) {
+    proyectoActualInvitar = proyectoId;
+    document.getElementById('proyectoNombreModal').textContent = proyectoTitulo;
+    
+    // Cargar amigos
+    await cargarAmigosParaInvitar();
+    
+    // Abrir modal
+    const modal = new bootstrap.Modal(document.getElementById('invitarAmigosModal'));
+    modal.show();
+};
+
+// Cargar amigos para invitar
+async function cargarAmigosParaInvitar() {
+    try {
+        const response = await fetch(`${API_URL}/amistades/amigos`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const data = await response.json();
+        const lista = document.getElementById('amigosLista');
+        
+        if (data.success && data.amigos.length > 0) {
+            lista.innerHTML = data.amigos.map(amigo => `
+                <div class="amigo-item">
+                    <div class="amigo-info">
+                        <div class="amigo-avatar">${getIniciales(amigo.nombre_completo)}</div>
+                        <div>
+                            <strong>${amigo.nombre_completo}</strong>
+                            <small class="d-block text-muted">${amigo.programa_academico || ''}</small>
+                        </div>
+                    </div>
+                    <button class="btn-invitar-amigo" onclick="invitarAmigoAProyecto(${amigo.id}, '${amigo.nombre_completo}')">
+                        <i class="fas fa-paper-plane me-1"></i>Invitar
+                    </button>
+                </div>
+            `).join('');
+        } else {
+            lista.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-user-friends fa-3x mb-3"></i>
+                    <p>No tienes amigos aún</p>
+                    <small>Agrega amigos desde la página de búsqueda</small>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error cargando amigos:', error);
+    }
+}
+
+// Invitar amigo a proyecto
+window.invitarAmigoAProyecto = async function(amigoId, amigoNombre) {
+    try {
+        const response = await fetch(`${API_URL}/invitaciones`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                proyecto_id: proyectoActualInvitar,
+                usuario_invitado: amigoId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Invitación enviada',
+                text: `Has invitado a ${amigoNombre} al proyecto`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
+            // Cerrar modal
+            bootstrap.Modal.getInstance(document.getElementById('invitarAmigosModal')).hide();
+        }
+    } catch (error) {
+        console.error('Error invitando:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo enviar la invitación'
+        });
+    }
+};
+
 // Función para abrir modal de comentarios (GLOBAL)
 window.abrirComentarios = function(proyectoId, proyectoTitulo) {
     console.log('Abriendo comentarios para proyecto:', proyectoId, proyectoTitulo);
@@ -144,9 +238,14 @@ function mostrarProyectos(proyectos) {
         return;
     }
 
+    // Obtener el ID del usuario actual del localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const usuarioId = user.id;
+
     feedContainer.innerHTML = proyectos.map(proyecto => {
-        // Escapar comillas simples en el título para el onclick
         const tituloEscapado = proyecto.titulo.replace(/'/g, "\\'");
+        // Verificar si el usuario actual es el creador
+        const esCreador = proyecto.autor.id === usuarioId;
         
         return `
         <div class="post-card" data-proyecto-id="${proyecto.id}">
@@ -172,19 +271,26 @@ function mostrarProyectos(proyectos) {
             
             <div class="post-stats">
                 <span class="stat-item" onclick="toggleLike(${proyecto.id}, this)" style="cursor: pointer;">
-                    <i class="far fa-heart"></i> <span class="like-count">${proyecto.likes}</span>
+                    <i class="far fa-heart"></i> ${proyecto.likes}
                 </span>
-                <!-- Botón de comentarios clickeable -->
                 <span class="stat-item" onclick="abrirComentarios(${proyecto.id}, '${tituloEscapado}')" style="cursor: pointer;">
                     <i class="far fa-comment"></i> ${proyecto.comentarios}
                 </span>
             </div>
             
-            <!-- Botón de unirse al proyecto -->
-            <div class="text-end mt-3">
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <!-- Botón de unirse -->
                 <button class="btn-join" onclick="unirseAProyecto(${proyecto.id}, '${tituloEscapado}')">
-                    <i class="fas fa-user-plus me-1"></i>Unirse al proyecto
+                    <i class="fas fa-user-plus me-1"></i>Unirse
                 </button>
+                
+                <!-- Botón de invitar amigos (solo visible para el creador) -->
+                ${esCreador ? `
+                <button class="btn-invite" onclick="mostrarAmigosParaInvitar(${proyecto.id}, '${tituloEscapado}')" title="Invitar amigos">
+                    <i class="fas fa-user-friends me-1"></i>Invitar
+                </button>
+                ` : ''}
             </div>
         </div>
     `}).join('');

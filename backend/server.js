@@ -31,6 +31,9 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authroutes');
 const comentarioRoutes = require('./routes/comentarioRoutes');
 const likeRoutes = require('./routes/likeRoutes');
+const amistadRoutes = require('./routes/amistadRoutes');
+const invitacionRoutes = require('./routes/invitacionRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
@@ -41,6 +44,9 @@ app.use('/api/proyectos', proyectoRoutes);
 app.use('/api/comentarios', comentarioRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
+app.use('/api/amistades', amistadRoutes);
+app.use('/api/invitaciones', invitacionRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
 
 

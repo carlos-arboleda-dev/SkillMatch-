@@ -16,68 +16,6 @@ function getIniciales(nombre) {
     return nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 }
 
-// Función para mostrar usuarios
-function mostrarUsuarios(usuarios) {
-    if (!usuarios || usuarios.length === 0) {
-        recomendacionesContainer.innerHTML = `
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-user-slash fa-3x mb-3"></i>
-                <p>No se encontraron personas con intereses similares</p>
-            </div>
-        `;
-        return;
-    }
-
-    recomendacionesContainer.innerHTML = usuarios.map(usuario => `
-        <div class="user-card" data-usuario-id="${usuario.codigo_estudiantil}">
-            <div class="d-flex align-items-center mb-3">
-                <div class="avatar-circle me-3">
-                    ${getIniciales(usuario.nombre_completo)}
-                </div>
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h5 class="mb-1">${usuario.nombre_completo}</h5>
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-graduation-cap me-1"></i>${usuario.programa_academico}
-                            </p>
-                            <span class="afinidad-badge">
-                                <i class="fas fa-heart me-1"></i>${usuario.afinidad || 0}% coincidencia
-                            </span>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <!-- Botón de solicitud de amistad (logo de persona) -->
-                            <button class="btn-friend-request" onclick="enviarSolicitudAmistad('${usuario.codigo_estudiantil}', '${usuario.nombre_completo}')" title="Enviar solicitud de amistad">
-                                <i class="fas fa-user-plus"></i>
-                            </button>
-                            
-                            <!-- Botón X para eliminar/quitar recomendación -->
-                            <button class="btn-remove-recommendation" onclick="quitarRecomendacion(this)" title="Eliminar recomendación">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            
-                            <!-- Botón original de agregar a proyecto (opcional, lo dejamos) -->
-                            <button class="btn-add-project" onclick="agregarAProyecto('${usuario.codigo_estudiantil}', '${usuario.nombre_completo}')" title="Agregar a proyecto">
-                                <i class="fas fa-plus-circle"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Mostrar intereses comunes -->
-            <div class="mt-2">
-                <small class="text-muted">Intereses:</small>
-                <div class="d-flex flex-wrap gap-2 mt-1">
-                    ${usuario.interes_academico ? usuario.interes_academico.map(i => 
-                        `<span class="badge bg-success bg-opacity-10 text-dark p-2">${i}</span>`
-                    ).join('') : '<span class="text-muted">No especificados</span>'}
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
 // Función para mostrar proyectos
 function mostrarProyectos(proyectos) {
     if (!proyectos || proyectos.length === 0) {
@@ -207,35 +145,68 @@ function mostrarAlerta(tipo, mensaje) {
 
 
 // Función para enviar solicitud de amistad
-function enviarSolicitudAmistad(codigoUsuario, nombreUsuario) {
-    // Aquí puedes agregar la lógica para enviar la solicitud al backend
-    console.log(`Solicitud de amistad enviada a ${nombreUsuario} (${codigoUsuario})`);
-    
-    // Feedback visual
-    const boton = event.currentTarget;
-    const icono = boton.querySelector('i');
-    
-    // Cambiar temporalmente el icono a check
-    icono.className = 'fas fa-check';
-    boton.style.background = '#9ED9CC';
-    boton.style.color = '#2c5e5e';
-    
-    // Mostrar mensaje
-    Swal.fire({
-        icon: 'success',
-        title: 'Solicitud enviada',
-        text: `Solicitud de amistad enviada a ${nombreUsuario}`,
-        timer: 1500,
-        showConfirmButton: false
-    });
-    
-    // Restaurar después de 2 segundos
-    setTimeout(() => {
-        icono.className = 'fas fa-user-plus';
-        boton.style.background = '';
-        boton.style.color = '';
-    }, 2000);
-}
+// Enviar solicitud de amistad
+window.enviarSolicitudAmistad = async function(codigoUsuario, nombreUsuario) {
+    try {
+        console.log('Enviando solicitud a:', codigoUsuario, nombreUsuario); // Para depurar
+        
+        if (!codigoUsuario) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo identificar al usuario'
+            });
+            return;
+        }
+
+        // Buscar usuario por código
+        const response = await fetch(`${API_URL}/usuarios/codigo/${codigoUsuario}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Usuario no encontrado');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Enviar solicitud de amistad
+            const solicitudResponse = await fetch(`${API_URL}/amistades/solicitud/${data.usuario.id}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            const solicitudData = await solicitudResponse.json();
+            
+            if (solicitudData.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Solicitud enviada',
+                    text: `Solicitud de amistad enviada a ${nombreUsuario}`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+                // Cambiar el botón temporalmente
+                const boton = event.currentTarget;
+                boton.style.background = '#9ED9CC';
+                boton.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    boton.style.background = '';
+                    boton.innerHTML = '<i class="fas fa-user-plus"></i>';
+                }, 2000);
+            }
+        }
+    } catch (error) {
+        console.error('Error enviando solicitud:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo enviar la solicitud'
+        });
+    }
+};
 
 // Función para quitar/quitar recomendación
 function quitarRecomendacion(boton) {
@@ -350,4 +321,125 @@ async function actualizarBadgeNotificaciones() {
         }
     }
 }
+
+// Función para enviar solicitud de amistad
+// Enviar solicitud de amistad - AHORA USA EL ID DIRECTAMENTE
+// Enviar solicitud de amistad (crea notificación)
+window.enviarSolicitudAmistad = async function(usuarioId, nombreUsuario) {
+    try {
+        const boton = event.currentTarget;
+        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        boton.disabled = true;
+
+        // Crear solicitud de amistad (esto ya debe crear una notificación en el backend)
+        const response = await fetch(`${API_URL}/amistades/solicitud/${usuarioId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Solicitud enviada',
+                text: `Solicitud enviada a ${nombreUsuario}`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
+            // Feedback visual
+            boton.innerHTML = '<i class="fas fa-check"></i>';
+            boton.style.background = '#9ED9CC';
+            
+            setTimeout(() => {
+                boton.innerHTML = '<i class="fas fa-user-plus"></i>';
+                boton.style.background = '';
+                boton.disabled = false;
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo enviar la solicitud'
+        });
+    }
+};
+
+// Busca la función mostrarUsuarios y asegúrate que tenga esta estructura:
+function mostrarUsuarios(usuarios) {
+    if (!usuarios || usuarios.length === 0) {
+        recomendacionesContainer.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-user-slash fa-3x mb-3"></i>
+                <p>No se encontraron personas con intereses similares</p>
+            </div>
+        `;
+        return;
+    }
+
+    recomendacionesContainer.innerHTML = usuarios.map(usuario => {
+        // Mostrar TODOS los datos del usuario para depurar
+        console.log('Usuario completo:', usuario);
+        
+        // Verificar si tiene código estudiantil
+        const codigoEstudiantil = usuario.codigo_estudiantil || usuario.id;
+        console.log('Usando código:', codigoEstudiantil);
+        
+        return `
+        <div class="user-card" data-usuario-id="${usuario.id}">
+            <div class="d-flex align-items-center mb-3">
+                <div class="avatar-circle me-3">
+                    ${getIniciales(usuario.nombre_completo)}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="mb-1">${usuario.nombre_completo}</h5>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-graduation-cap me-1"></i>${usuario.programa_academico || ''}
+                            </p>
+                            <span class="afinidad-badge">
+                                <i class="fas fa-heart me-1"></i>${usuario.afinidad || 0}% coincidencia
+                            </span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <!-- Botón de solicitud de amistad - AHORA USA ID DIRECTAMENTE -->
+                            <button class="btn-friend-request" 
+                                    onclick="enviarSolicitudAmistad('${usuario.id}', '${usuario.nombre_completo}')" 
+                                    title="Enviar solicitud de amistad">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            
+                            <!-- Botón X para eliminar recomendación -->
+                            <button class="btn-remove-recommendation" onclick="quitarRecomendacion(this)" title="Eliminar recomendación">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            
+                            <!-- Botón de agregar a proyecto -->
+                            <button class="btn-add-project" 
+                                    onclick="agregarAProyecto('${usuario.id}', '${usuario.nombre_completo}')" 
+                                    title="Agregar a proyecto">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mostrar intereses comunes -->
+            <div class="mt-2">
+                <small class="text-muted">Intereses:</small>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    ${usuario.interes_academico ? usuario.interes_academico.map(i => 
+                        `<span class="badge bg-success bg-opacity-10 text-dark p-2">${i}</span>`
+                    ).join('') : '<span class="text-muted">No especificados</span>'}
+                </div>
+            </div>
+        </div>
+    `}).join('');
+}
+
 actualizarBadgeNotificaciones();
