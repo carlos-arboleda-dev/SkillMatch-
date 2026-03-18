@@ -15,4 +15,7 @@ router.post(
 // Ruta de login (nueva)
 router.post('/login', authController.login);
 
+router.post('/register-admin', authController.registerAdmin);
+
+
 module.exports = router;

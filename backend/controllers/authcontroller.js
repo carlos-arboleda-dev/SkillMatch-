@@ -90,10 +90,10 @@ const login = async (req, res) => {
                 nombre: user.nombre_completo 
             },
             process.env.JWT_SECRET || 'SkillMatch2025SecretKey!',
-            { expiresIn: '24h' }
+            { expiresIn: '30d' }
         );
 
-        // Responder con éxito
+        // Responder con éxito (AGREGAMOS user.rol)
         res.json({
             success: true,
             message: 'Login exitoso',
@@ -102,7 +102,8 @@ const login = async (req, res) => {
                 id: user.id,
                 nombre: user.nombre_completo,
                 email: user.correo_institucional,
-                programa: user.programa_academico
+                programa: user.programa_academico,
+                rol: user.rol  // 👈 ESTA LÍNEA ES LA QUE FALTA
             }
         });
 
@@ -112,8 +113,56 @@ const login = async (req, res) => {
     }
 };
 
+// Registro de administrador
+const registerAdmin = async (req, res) => {
+    try {
+        const { nombre, email, codigo, password, rol } = req.body;
+
+        // Validar que sea admin
+        if (rol !== 'admin') {
+            return res.status(400).json({ error: 'Rol no válido para este registro' });
+        }
+
+        // Verificar si el correo ya existe
+        const existingUser = await User.findByEmail(email);
+        if (existingUser) {
+            return res.status(400).json({ error: 'El correo ya está registrado' });
+        }
+
+        // Encriptar contraseña
+        const password_hash = await bcrypt.hash(password, 10);
+
+        // Crear usuario admin con valores por defecto para campos de estudiante
+        const newUser = await User.createAdmin({
+            nombre_completo: nombre,
+            correo: email,
+            codigo: codigo || `ADMIN-${Date.now()}`,
+            programa: 'Administración',
+            semestre: 1,
+            password_hash,
+            rol: 'admin'
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Administrador registrado exitosamente',
+            user: {
+                id: newUser.id,
+                nombre: newUser.nombre_completo,
+                email: newUser.correo_institucional,
+                rol: 'admin'
+            }
+        });
+
+    } catch (error) {
+        console.error('Error registrando admin:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
 // Exportar ambas funciones como objeto
 module.exports = {
     register,
-    login
+    login,
+    registerAdmin
 };
