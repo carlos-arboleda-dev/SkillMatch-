@@ -195,4 +195,7 @@ async function actualizarBadgeNotificaciones() {
 actualizarBadgeNotificaciones();
 
 // Cargar al iniciar
-document.addEventListener('DOMContentLoaded', cargarPerfil);
+document.addEventListener('DOMContentLoaded', function() {
+    cargarPerfil();
+    actualizarBadgeNotificaciones();
+});

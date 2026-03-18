@@ -27,6 +27,25 @@
             z-index: 1000;
         }
         
+        .navbar-brand {
+            color: var(--verde-pastel-3);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-icon {
+            color: var(--verde-pastel-3);
+            font-size: 1.3rem;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--verde-pastel-2);
+            transform: scale(1.1);
+        }
+        
         .notifications-container {
             max-width: 600px;
             margin: 2rem auto;
@@ -89,25 +108,43 @@
     </style>
 </head>
 <body>
-    <!-- Barra de navegación similar a otras páginas -->
+    <!-- Barra de navegación -->
     <nav class="navbar navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="feed.html">
+            <a class="navbar-brand" href="dashboard.html">
                 <i class="fas fa-handshake me-2"></i>SkillMatch
             </a>
             <div class="d-flex align-items-center">
-                <a href="crear_proyecto.html" class="nav-icon"><i class="fas fa-plus"></i></a>
-                <a href="buscar.html" class="nav-icon"><i class="fas fa-search"></i></a>
-                <a href="chats.html" class="nav-icon"><i class="fas fa-comment"></i></a>
-                <a href="notificaciones.html" class="nav-icon active"><i class="fas fa-bell"></i></a>
+                <a href="crear_proyecto.html" class="nav-icon" title="Crear proyecto">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a href="buscar.html" class="nav-icon" title="Buscar">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="chats.html" class="nav-icon" title="Chats">
+                    <i class="fas fa-comment"></i>
+                </a>
+                <a href="notificaciones.html" class="nav-icon active" title="Notificaciones" id="notificacionesIcono">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;" id="notificacionesBadge">0</span>
+                </a>
+                <!-- Menú de perfil desplegable -->
                 <div class="dropdown">
-                    <button class="btn nav-icon dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle fa-2x"></i>
+                    <button class="btn nav-icon dropdown-toggle" type="button" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; padding: 0;">
+                        <i class="fas fa-user-circle fa-2x" style="color: var(--verde-pastel-3);"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="perfil.html">Ver Perfil</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown" style="border-radius: 15px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <li>
+                            <a class="dropdown-item" href="perfil.html">
+                                <i class="fas fa-user me-2" style="color: var(--verde-pastel-3);"></i>Ver Perfil
+                            </a>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#" id="cerrarSesion">Cerrar Sesión</a></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" id="cerrarSesion">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

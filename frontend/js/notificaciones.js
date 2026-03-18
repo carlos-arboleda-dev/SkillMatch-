@@ -104,16 +104,43 @@ async function actualizarContador() {
     const contador = document.getElementById('contadorNoLeidas');
     if (contador) contador.textContent = data.noLeidas;
     
-    // Actualizar favicon/badge en el navbar
-    const iconoBell = document.querySelector('.nav-icon[href="notificaciones.html"]');
-    if (iconoBell) {
+    // Actualizar badge en el navbar
+    const badge = document.getElementById('notificacionesBadge');
+    if (badge) {
         if (data.noLeidas > 0) {
-            iconoBell.innerHTML = `<i class="fas fa-bell"></i><span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem;">${data.noLeidas}</span>`;
+            badge.textContent = data.noLeidas;
+            badge.style.display = 'inline';
         } else {
-            iconoBell.innerHTML = '<i class="fas fa-bell"></i>';
+            badge.style.display = 'none';
         }
     }
 }
 
+// Manejar cierre de sesión
+document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    Swal.fire({
+        title: '¿Cerrar sesión?',
+        text: '¿Estás seguro que deseas salir?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#9ED9CC',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('justRegistered');
+            window.location.href = 'login.html';
+        }
+    });
+});
+
 // Inicializar
-cargarNotificaciones();
+document.addEventListener('DOMContentLoaded', function() {
+    cargarNotificaciones();
+    actualizarContador();
+});
