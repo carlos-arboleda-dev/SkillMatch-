@@ -126,6 +126,42 @@ const comentarioController = {
             console.error('Error eliminando comentario:', error);
             res.status(500).json({ error: 'Error del servidor' });
         }
+    },
+
+    // Editar comentario
+    async editarComentario(req, res) {
+        try {
+            const token = req.header('Authorization')?.replace('Bearer ', '');
+            if (!token) {
+                return res.status(401).json({ error: 'Token requerido' });
+            }
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
+            const usuario_id = decoded.userId;
+            
+            const { id } = req.params;
+            const { contenido } = req.body;
+            
+            if (!contenido || !contenido.trim()) {
+                return res.status(400).json({ error: 'El contenido no puede estar vacío' });
+            }
+            
+            const comentario = await Comentario.update(id, usuario_id, contenido);
+            
+            if (!comentario) {
+                return res.status(404).json({ error: 'Comentario no encontrado o no tienes permiso' });
+            }
+            
+            res.json({
+                success: true,
+                message: 'Comentario actualizado',
+                comentario
+            });
+            
+        } catch (error) {
+            console.error('Error editando comentario:', error);
+            res.status(500).json({ error: 'Error del servidor' });
+        }
     }
 };
 

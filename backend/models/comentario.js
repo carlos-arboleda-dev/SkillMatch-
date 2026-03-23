@@ -92,6 +92,34 @@ const Comentario = {
         } finally {
             client.release();
         }
+    },
+
+    // Actualizar comentario
+    async update(id, usuario_id, contenido) {
+        const client = await pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+            
+            // Actualizar comentario
+            const updateQuery = `
+                UPDATE comentarios 
+                SET contenido = $1, updated_at = NOW()
+                WHERE id = $2 AND usuario_id = $3 
+                RETURNING id, contenido, usuario_id, proyecto_id, created_at, updated_at;
+            `;
+            const result = await client.query(updateQuery, [contenido, id, usuario_id]);
+            
+            await client.query('COMMIT');
+            return result.rows[0] || null;
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Error en Comentario.update:', error);
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 };
 

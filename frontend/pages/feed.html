@@ -213,6 +213,40 @@
             cursor: not-allowed;
         }
 
+        /* Estilos para botones de comentarios */
+        .comentario-item {
+            position: relative;
+        }
+
+        .btn-outline-primary {
+            color: var(--verde-pastel-3);
+            border-color: var(--verde-pastel-3);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--verde-pastel-3);
+            border-color: var(--verde-pastel-3);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
         /* Botón de invitar */
         .btn-invite {
             background: linear-gradient(135deg, #9ED9CC 0%, #8EC9C1 100%);
@@ -362,6 +396,27 @@
                             <i class="fas fa-paper-plane me-2"></i>Enviar
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar comentarios -->
+    <div class="modal fade" id="editarComentarioModal" tabindex="-1" aria-labelledby="editarComentarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #A8E6CF 0%, #9ED9CC 100%);">
+                    <h5 class="modal-title" id="editarComentarioLabel">
+                        <i class="fas fa-edit me-2"></i>Editar comentario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="editarComentarioTexto" rows="5" placeholder="Edita tu comentario..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="guardarComentarioBtn">Guardar cambios</button>
                 </div>
             </div>
         </div>

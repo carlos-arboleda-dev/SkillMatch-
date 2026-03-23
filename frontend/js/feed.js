@@ -7,6 +7,17 @@ if (!token) {
 }
 
 let proyectoActualId = null;
+let usuarioActual = null;
+let comentarioEnEdicion = null;
+let proyectoEnEdicion = null;
+
+// Obtener usuario actual
+try {
+    usuarioActual = JSON.parse(localStorage.getItem('user'));
+    console.log('Usuario actual:', usuarioActual);
+} catch (error) {
+    console.error('Error obteniendo usuario actual:', error);
+}
 
 // Variable global para el proyecto actual
 let proyectoActualInvitar = null;
@@ -140,20 +151,40 @@ async function cargarComentarios(proyectoId) {
                     </div>
                 `;
             } else {
-                container.innerHTML = data.comentarios.map(c => `
-                    <div class="d-flex mb-3">
-                        <div class="avatar-circle me-2" style="width: 40px; height: 40px; font-size: 1rem;">
-                            ${getIniciales(c.autor_nombre)}
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between">
-                                <strong>${c.autor_nombre}</strong>
-                                <small class="text-muted">${formatearFecha(c.created_at)}</small>
+                container.innerHTML = data.comentarios.map(c => {
+                    const esAutor = usuarioActual && (
+                        usuarioActual.id === c.usuario_id || 
+                        usuarioActual.id == c.usuario_id ||
+                        String(usuarioActual.id) === String(c.usuario_id)
+                    );
+                    console.log('Comparando:', { usuarioId: usuarioActual?.id, autorId: c.usuario_id, esAutor });
+                    return `
+                        <div class="d-flex mb-3 comentario-item" data-comentario-id="${c.id}">
+                            <div class="avatar-circle me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                                ${getIniciales(c.autor_nombre)}
                             </div>
-                            <p class="mb-0">${c.contenido}</p>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>${c.autor_nombre}</strong>
+                                        <small class="text-muted ms-2">${formatearFecha(c.created_at)}</small>
+                                    </div>
+                                    ${esAutor ? `
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="editarComentario(${c.id}, '${c.contenido.replace(/'/g, "\\'")}', ${proyectoId})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarComentario(${c.id}, ${proyectoId})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <p class="mb-0 mt-2" id="contenido-${c.id}">${c.contenido}</p>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
     } catch (error) {
@@ -165,6 +196,134 @@ async function cargarComentarios(proyectoId) {
         `;
     }
 }
+
+// Función para editar comentario
+window.editarComentario = function(comentarioId, contenidoActual, proyectoId) {
+    comentarioEnEdicion = comentarioId;
+    proyectoEnEdicion = proyectoId;
+    
+    // Llenar el textarea con el contenido actual
+    document.getElementById('editarComentarioTexto').value = contenidoActual;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editarComentarioModal'));
+    modal.show();
+};
+
+// Función para eliminar comentario
+window.eliminarComentario = async function(comentarioId, proyectoId) {
+    const { isConfirmed } = await Swal.fire({
+        title: '¿Eliminar comentario?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d'
+    });
+    
+    if (!isConfirmed) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/comentarios/${comentarioId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Comentario eliminado',
+                timer: 1500
+            });
+            cargarComentarios(proyectoId);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'No se pudo eliminar el comentario'
+            });
+        }
+    } catch (error) {
+        console.error('Error eliminando comentario:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el comentario'
+        });
+    }
+};
+
+// Función para guardar comentario editado
+document.getElementById('guardarComentarioBtn')?.addEventListener('click', async () => {
+    const textarea = document.getElementById('editarComentarioTexto');
+    const nuevoContenido = textarea.value.trim();
+    
+    if (!nuevoContenido) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campo vacío',
+            text: 'El comentario no puede estar vacío'
+        });
+        return;
+    }
+    
+    if (!comentarioEnEdicion || !proyectoEnEdicion) return;
+    
+    const btn = document.getElementById('guardarComentarioBtn');
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`${API_URL}/comentarios/${comentarioEnEdicion}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                contenido: nuevoContenido
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Cerrar el modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editarComentarioModal'));
+            modal.hide();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Comentario actualizado',
+                timer: 1500
+            });
+            
+            cargarComentarios(proyectoEnEdicion);
+            comentarioEnEdicion = null;
+            proyectoEnEdicion = null;
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'No se pudo actualizar el comentario'
+            });
+        }
+    } catch (error) {
+        console.error('Error editando comentario:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo editar el comentario'
+        });
+    } finally {
+        btn.disabled = false;
+    }
+});
 
 // Función para enviar comentario
 document.getElementById('enviarComentarioBtn')?.addEventListener('click', async () => {
