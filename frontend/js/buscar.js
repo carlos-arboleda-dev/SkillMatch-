@@ -5,18 +5,15 @@ if (!token) {
     window.location.href = 'login.html';
 }
 
-// Elementos del DOM
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const recomendacionesContainer = document.getElementById('recomendaciones-container');
 const proyectosContainer = document.getElementById('proyectos-container');
 
-// Función para obtener iniciales
 function getIniciales(nombre) {
     return nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 }
 
-// Función para mostrar proyectos
 function mostrarProyectos(proyectos) {
     if (!proyectos || proyectos.length === 0) {
         proyectosContainer.innerHTML = `
@@ -43,24 +40,18 @@ function mostrarProyectos(proyectos) {
                 <a href="#" class="btn-project" onclick="entrarAProyecto(${proyecto.id})">
                     <i class="fas fa-sign-in-alt me-1"></i>Entrar
                 </a>
-                
             </div>
         </div>
     `).join('');
 }
 
-// Cargar recomendaciones iniciales
 async function cargarRecomendaciones() {
     try {
         const response = await fetch(`${API_URL}/recomendaciones/usuarios?limite=10`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!response.ok) {
-            throw new Error('Error al cargar recomendaciones');
-        }
+        if (!response.ok) throw new Error('Error al cargar recomendaciones');
 
         const data = await response.json();
         mostrarUsuarios(data.usuarios);
@@ -74,7 +65,6 @@ async function cargarRecomendaciones() {
     }
 }
 
-// Buscar por palabra clave
 async function buscarPorPalabra(clave) {
     if (!clave.trim()) {
         cargarRecomendaciones();
@@ -90,9 +80,7 @@ async function buscarPorPalabra(clave) {
 
     try {
         const response = await fetch(`${API_URL}/recomendaciones/buscar?q=${encodeURIComponent(clave)}&limite=10`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         const data = await response.json();
@@ -103,28 +91,118 @@ async function buscarPorPalabra(clave) {
     }
 }
 
-// Función para buscar por tag (desde los filtros)
 window.buscarPorTag = function(tag) {
     searchInput.value = tag;
     buscarPorPalabra(tag);
 };
 
-// Funciones para acciones (placeholder)
-window.agregarAProyecto = function(codigo, nombre) {
-    Swal.fire({
-        title: 'Agregar a proyecto',
-        text: `¿A qué proyecto quieres agregar a ${nombre}?`,
-        input: 'select',
-        inputOptions: {
-            'proyecto1': 'Estudio de Ecosistemas',
-            'proyecto2': 'Programación en Python',
-            'proyecto3': 'Plataforma Educativa'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-        cancelButtonText: 'Cancelar'
-    });
+window.agregarAProyecto = async function(usuarioId, nombreUsuario) {
+    try {
+        sessionStorage.setItem('invitarUsuarioId', usuarioId);
+        sessionStorage.setItem('invitarUsuarioNombre', nombreUsuario);
+        
+        const response = await fetch(`${API_URL}/proyectos/mis-proyectos`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const proyectos = await response.json();
+        
+        if (!proyectos || proyectos.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Sin proyectos',
+                text: 'No tienes proyectos para invitar. Crea uno primero.',
+                confirmButtonColor: '#9ED9CC'
+            }).then(() => {
+                window.location.href = 'crear_proyecto.html';
+            });
+            return;
+        }
+        
+        let opciones = '<option value="">Selecciona un proyecto</option>';
+        proyectos.forEach(p => {
+            opciones += `<option value="${p.id}">${p.nombre} (${p.numero_integrantes} integrantes)</option>`;
+        });
+        
+        Swal.fire({
+            title: `Invitar a ${nombreUsuario}`,
+            html: `
+                <p>Selecciona el proyecto al que quieres invitar:</p>
+                <select id="proyectoSelect" class="form-select" style="margin-bottom: 1rem;">
+                    ${opciones}
+                </select>
+                <p class="text-muted small">El usuario recibirá una notificación para aceptar o rechazar</p>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Enviar invitación',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#9ED9CC',
+            cancelButtonColor: '#d33',
+            preConfirm: () => {
+                const proyectoId = document.getElementById('proyectoSelect').value;
+                if (!proyectoId) {
+                    Swal.showValidationMessage('Debes seleccionar un proyecto');
+                    return false;
+                }
+                return proyectoId;
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await enviarInvitacionProyecto(usuarioId, result.value, nombreUsuario);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error cargando proyectos:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron cargar tus proyectos'
+        });
+    }
 };
+
+async function enviarInvitacionProyecto(usuarioId, proyectoId, nombreUsuario) {
+    try {
+        const response = await fetch(`${API_URL}/invitaciones`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                proyecto_id: proyectoId,
+                usuario_invitado: usuarioId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Invitación enviada',
+                text: `Has invitado a ${nombreUsuario} al proyecto`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error || 'No se pudo enviar la invitación'
+            });
+        }
+    } catch (error) {
+        console.error('Error enviando invitación:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo enviar la invitación'
+        });
+    }
+}
 
 window.invitarAProyecto = function(proyectoId) {
     Swal.fire('Invitación enviada', 'Se ha notificado al usuario', 'success');
@@ -143,72 +221,85 @@ function mostrarAlerta(tipo, mensaje) {
     });
 }
 
-
-// Función para enviar solicitud de amistad
 // Enviar solicitud de amistad
-window.enviarSolicitudAmistad = async function(codigoUsuario, nombreUsuario) {
+window.enviarSolicitudAmistad = async function(usuarioId, nombreUsuario) {
     try {
-        console.log('Enviando solicitud a:', codigoUsuario, nombreUsuario); // Para depurar
-        
-        if (!codigoUsuario) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo identificar al usuario'
-            });
-            return;
-        }
+        const boton = event.currentTarget;
+        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        boton.disabled = true;
 
-        // Buscar usuario por código
-        const response = await fetch(`${API_URL}/usuarios/codigo/${codigoUsuario}`, {
+        const response = await fetch(`${API_URL}/amistades/solicitud/${usuarioId}`, {
+            method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        if (!response.ok) {
-            throw new Error('Usuario no encontrado');
-        }
         
         const data = await response.json();
         
         if (data.success) {
-            // Enviar solicitud de amistad
-            const solicitudResponse = await fetch(`${API_URL}/amistades/solicitud/${data.usuario.id}`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+            Swal.fire({
+                icon: 'success',
+                title: '¡Solicitud enviada!',
+                text: data.mensajeAmigable || `Solicitud enviada a ${nombreUsuario}`,
+                timer: 1500,
+                showConfirmButton: false
             });
             
-            const solicitudData = await solicitudResponse.json();
+            boton.innerHTML = '<i class="fas fa-check"></i>';
+            boton.style.background = '#9ED9CC';
             
-            if (solicitudData.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Solicitud enviada',
-                    text: `Solicitud de amistad enviada a ${nombreUsuario}`,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-                
-                // Cambiar el botón temporalmente
-                const boton = event.currentTarget;
-                boton.style.background = '#9ED9CC';
-                boton.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    boton.style.background = '';
-                    boton.innerHTML = '<i class="fas fa-user-plus"></i>';
-                }, 2000);
+            setTimeout(() => {
+                boton.innerHTML = '<i class="fas fa-user-plus"></i>';
+                boton.style.background = '';
+                boton.disabled = false;
+            }, 2000);
+        } else {
+            let mensaje = '';
+            let icono = 'error';
+            
+            switch (data.tipo) {
+                case 'ya_amigos':
+                    mensaje = `✅ Ya eres amigo de ${nombreUsuario}`;
+                    icono = 'info';
+                    boton.innerHTML = '<i class="fas fa-user-check"></i>';
+                    break;
+                case 'ya_enviada':
+                    mensaje = `📨 Ya enviaste una solicitud a ${nombreUsuario}`;
+                    icono = 'info';
+                    break;
+                case 'recibida':
+                    mensaje = `🔔 ${nombreUsuario} ya te envió una solicitud. Revisa tus notificaciones.`;
+                    icono = 'info';
+                    break;
+                default:
+                    mensaje = data.mensajeAmigable || data.error || 'No se pudo enviar la solicitud';
+            }
+            
+            Swal.fire({
+                icon: icono,
+                title: mensaje.includes('✅') || mensaje.includes('📨') || mensaje.includes('🔔') ? 'Información' : 'Error',
+                text: mensaje,
+                timer: 2500,
+                showConfirmButton: false
+            });
+            
+            boton.disabled = false;
+            if (data.tipo !== 'ya_amigos') {
+                boton.innerHTML = '<i class="fas fa-user-plus"></i>';
             }
         }
     } catch (error) {
-        console.error('Error enviando solicitud:', error);
+        console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
             text: 'No se pudo enviar la solicitud'
         });
+        const boton = event.currentTarget;
+        boton.disabled = false;
+        boton.innerHTML = '<i class="fas fa-user-plus"></i>';
     }
 };
 
-// Función para quitar/quitar recomendación
 function quitarRecomendacion(boton) {
     const userCard = boton.closest('.user-card');
     const nombreUsuario = userCard.querySelector('h5').textContent;
@@ -224,7 +315,6 @@ function quitarRecomendacion(boton) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Animación de desvanecimiento
             userCard.style.transition = 'all 0.3s ease';
             userCard.style.opacity = '0';
             userCard.style.transform = 'translateX(100px)';
@@ -232,9 +322,7 @@ function quitarRecomendacion(boton) {
             setTimeout(() => {
                 userCard.remove();
                 
-                // Verificar si ya no hay más usuarios
-                const remainingCards = document.querySelectorAll('.user-card');
-                if (remainingCards.length === 0) {
+                if (document.querySelectorAll('.user-card').length === 0) {
                     document.getElementById('recomendaciones-container').innerHTML = `
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-users-slash fa-3x mb-3"></i>
@@ -255,120 +343,8 @@ function quitarRecomendacion(boton) {
     });
 }
 
-// Hacer las funciones globales
-window.enviarSolicitudAmistad = enviarSolicitudAmistad;
 window.quitarRecomendacion = quitarRecomendacion;
 
-// Event listeners
-searchBtn.addEventListener('click', () => {
-    buscarPorPalabra(searchInput.value);
-});
-
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        buscarPorPalabra(searchInput.value);
-    }
-});
-
-// Cargar datos al iniciar
-document.addEventListener('DOMContentLoaded', () => {
-    cargarRecomendaciones();
-    // También podríamos cargar proyectos recomendados
-    // cargarProyectosRecomendados();
-});
-
-
-    // Manejar cierre de sesión
-document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        Swal.fire({
-            title: '¿Cerrar sesión?',
-            text: '¿Estás seguro que deseas salir?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#9ED9CC',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, cerrar sesión',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Limpiar localStorage
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('justRegistered');
-                
-                // Redirigir al login
-                window.location.href = 'login.html';
-            }
-        });
-    });
-
-
-// Actualizar badge de notificaciones
-async function actualizarBadgeNotificaciones() {
-    const response = await fetch(`${API_URL}/notificaciones/contar`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await response.json();
-    const badge = document.getElementById('notificacionesBadge');
-    if (badge) {
-        if (data.noLeidas > 0) {
-            badge.textContent = data.noLeidas;
-            badge.style.display = 'inline';
-        } else {
-            badge.style.display = 'none';
-        }
-    }
-}
-
-// Función para enviar solicitud de amistad
-// Enviar solicitud de amistad - AHORA USA EL ID DIRECTAMENTE
-// Enviar solicitud de amistad (crea notificación)
-window.enviarSolicitudAmistad = async function(usuarioId, nombreUsuario) {
-    try {
-        const boton = event.currentTarget;
-        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        boton.disabled = true;
-
-        // Crear solicitud de amistad (esto ya debe crear una notificación en el backend)
-        const response = await fetch(`${API_URL}/amistades/solicitud/${usuarioId}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Solicitud enviada',
-                text: `Solicitud enviada a ${nombreUsuario}`,
-                timer: 1500,
-                showConfirmButton: false
-            });
-            
-            // Feedback visual
-            boton.innerHTML = '<i class="fas fa-check"></i>';
-            boton.style.background = '#9ED9CC';
-            
-            setTimeout(() => {
-                boton.innerHTML = '<i class="fas fa-user-plus"></i>';
-                boton.style.background = '';
-                boton.disabled = false;
-            }, 2000);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo enviar la solicitud'
-        });
-    }
-};
-
-// Busca la función mostrarUsuarios y asegúrate que tenga esta estructura:
 function mostrarUsuarios(usuarios) {
     if (!usuarios || usuarios.length === 0) {
         recomendacionesContainer.innerHTML = `
@@ -380,15 +356,7 @@ function mostrarUsuarios(usuarios) {
         return;
     }
 
-    recomendacionesContainer.innerHTML = usuarios.map(usuario => {
-        // Mostrar TODOS los datos del usuario para depurar
-        console.log('Usuario completo:', usuario);
-        
-        // Verificar si tiene código estudiantil
-        const codigoEstudiantil = usuario.codigo_estudiantil || usuario.id;
-        console.log('Usando código:', codigoEstudiantil);
-        
-        return `
+    recomendacionesContainer.innerHTML = usuarios.map(usuario => `
         <div class="user-card" data-usuario-id="${usuario.id}">
             <div class="d-flex align-items-center mb-3">
                 <div class="avatar-circle me-3">
@@ -406,19 +374,16 @@ function mostrarUsuarios(usuarios) {
                             </span>
                         </div>
                         <div class="d-flex gap-2">
-                            <!-- Botón de solicitud de amistad - AHORA USA ID DIRECTAMENTE -->
                             <button class="btn-friend-request" 
                                     onclick="enviarSolicitudAmistad('${usuario.id}', '${usuario.nombre_completo}')" 
                                     title="Enviar solicitud de amistad">
                                 <i class="fas fa-user-plus"></i>
                             </button>
-                            
-                            <!-- Botón X para eliminar recomendación -->
-                            <button class="btn-remove-recommendation" onclick="quitarRecomendacion(this)" title="Eliminar recomendación">
+                            <button class="btn-remove-recommendation" 
+                                    onclick="quitarRecomendacion(this)" 
+                                    title="Eliminar recomendación">
                                 <i class="fas fa-times"></i>
                             </button>
-                            
-                            <!-- Botón de agregar a proyecto -->
                             <button class="btn-add-project" 
                                     onclick="agregarAProyecto('${usuario.id}', '${usuario.nombre_completo}')" 
                                     title="Agregar a proyecto">
@@ -428,8 +393,6 @@ function mostrarUsuarios(usuarios) {
                     </div>
                 </div>
             </div>
-            
-            <!-- Mostrar intereses comunes -->
             <div class="mt-2">
                 <small class="text-muted">Intereses:</small>
                 <div class="d-flex flex-wrap gap-2 mt-1">
@@ -439,7 +402,68 @@ function mostrarUsuarios(usuarios) {
                 </div>
             </div>
         </div>
-    `}).join('');
+    `).join('');
 }
 
-actualizarBadgeNotificaciones();
+async function actualizarBadgeNotificaciones() {
+    try {
+        const response = await fetch(`${API_URL}/notificaciones/contar`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const badge = document.getElementById('notificacionesBadge');
+        if (badge) {
+            if (data.noLeidas > 0) {
+                badge.textContent = data.noLeidas;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error badge:', error);
+    }
+}
+
+searchBtn.addEventListener('click', () => {
+    buscarPorPalabra(searchInput.value);
+});
+
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') buscarPorPalabra(searchInput.value);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarRecomendaciones();
+    actualizarBadgeNotificaciones();
+});
+
+// Cerrar sesión - actualizado para registrar logout
+document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    const result = await Swal.fire({
+        title: '¿Cerrar sesión?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#9ED9CC',
+        confirmButtonText: 'Sí, salir',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // Registrar logout en el backend
+            await fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.error('Error registrando logout:', error);
+        }
+        
+        // Limpiar localStorage y redirigir
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+});

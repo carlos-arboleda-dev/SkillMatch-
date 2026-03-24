@@ -524,27 +524,34 @@ async function cargarFeed() {
     }
 }
 
-// Manejar cierre de sesión
-document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+// Cerrar sesión - actualizado para registrar logout
+document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
     e.preventDefault();
     
-    Swal.fire({
+    const result = await Swal.fire({
         title: '¿Cerrar sesión?',
-        text: '¿Estás seguro que deseas salir?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#9ED9CC',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, cerrar sesión',
+        confirmButtonText: 'Sí, salir',
         cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('justRegistered');
-            window.location.href = 'login.html';
-        }
     });
+    
+    if (result.isConfirmed) {
+        try {
+            // Registrar logout en el backend
+            await fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.error('Error registrando logout:', error);
+        }
+        
+        // Limpiar localStorage y redirigir
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
 });
 
 // Función para dar/quitar like

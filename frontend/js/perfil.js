@@ -144,32 +144,35 @@ async function cargarPerfil() {
     }
 }
 
-// Manejar cierre de sesión
-document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
-        e.preventDefault();
+// Cerrar sesión - actualizado para registrar logout
+document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    const result = await Swal.fire({
+        title: '¿Cerrar sesión?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#9ED9CC',
+        confirmButtonText: 'Sí, salir',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // Registrar logout en el backend
+            await fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.error('Error registrando logout:', error);
+        }
         
-        Swal.fire({
-            title: '¿Cerrar sesión?',
-            text: '¿Estás seguro que deseas salir?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#9ED9CC',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, cerrar sesión',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Limpiar localStorage
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('justRegistered');
-                
-                // Redirigir al login
-                window.location.href = 'login.html';
-            }
-        });
+        // Limpiar localStorage y redirigir
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
 });
-
 
 // Función para ir a editar perfil
 window.editarPerfil = function() {

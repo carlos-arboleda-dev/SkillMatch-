@@ -1,4 +1,3 @@
-// frontend/js/notificaciones.js
 const API_URL = 'http://localhost:3000/api';
 const token = localStorage.getItem('token');
 
@@ -6,12 +5,10 @@ if (!token) {
     window.location.href = 'login.html';
 }
 
-// Función para obtener iniciales
 function getIniciales(nombre) {
     return nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 }
 
-// Función para formatear fecha
 function formatearFecha(fecha) {
     const d = new Date(fecha);
     const hoy = new Date();
@@ -24,7 +21,6 @@ function formatearFecha(fecha) {
     return d.toLocaleDateString();
 }
 
-// Función para actualizar badge de notificaciones (VERSIÓN COMBINADA)
 async function actualizarBadgeNotificaciones() {
     try {
         const response = await fetch(`${API_URL}/notificaciones/contar`, {
@@ -32,11 +28,9 @@ async function actualizarBadgeNotificaciones() {
         });
         const data = await response.json();
         
-        // Actualizar contador en el modal
         const contador = document.getElementById('contadorNoLeidas');
         if (contador) contador.textContent = data.noLeidas;
         
-        // Actualizar badge en el navbar
         const badge = document.getElementById('notificacionesBadge');
         if (badge) {
             if (data.noLeidas > 0) {
@@ -51,22 +45,19 @@ async function actualizarBadgeNotificaciones() {
     }
 }
 
-// Función para responder solicitud de amistad
 window.responderSolicitud = async function(emisorId, notificacionId, accion) {
     try {
         console.log(`📤 ${accion} solicitud de usuario:`, emisorId);
         
-        // Mostrar loading en los botones
         const notificacion = document.querySelector(`[data-id="${notificacionId}"]`);
-        const botonesContainer = notificacion.querySelector('.d-flex.gap-2.mt-2');
+        const botonesContainer = notificacion?.querySelector('.d-flex.gap-2.mt-2');
         const botonAceptar = botonesContainer?.querySelector('.btn-aceptar');
         const botonRechazar = botonesContainer?.querySelector('.btn-rechazar');
         
         if (botonAceptar) botonAceptar.disabled = true;
         if (botonRechazar) botonRechazar.disabled = true;
         
-        // Determinar el endpoint correcto
-        const endpoint = accion === 'aceptar' 
+        const endpoint = accion === 'aceptar'
             ? `${API_URL}/amistades/aceptar/${emisorId}`
             : `${API_URL}/amistades/rechazar/${emisorId}`;
         
@@ -87,12 +78,10 @@ window.responderSolicitud = async function(emisorId, notificacionId, accion) {
                 showConfirmButton: false
             });
             
-            // Marcar notificación como leída y ocultar botones
             if (notificacion) {
                 notificacion.classList.add('leida');
                 notificacion.classList.remove('no-leida');
                 
-                // Reemplazar botones con mensaje de confirmación
                 if (botonesContainer) {
                     botonesContainer.innerHTML = `
                         <span class="badge ${accion === 'aceptar' ? 'bg-success' : 'bg-secondary'}">
@@ -101,7 +90,6 @@ window.responderSolicitud = async function(emisorId, notificacionId, accion) {
                     `;
                 }
                 
-                // Actualizar badge
                 await actualizarBadgeNotificaciones();
             }
         } else {
@@ -115,47 +103,56 @@ window.responderSolicitud = async function(emisorId, notificacionId, accion) {
             text: error.message || 'No se pudo procesar la solicitud'
         });
         
-        // Restaurar botones
         const notificacion = document.querySelector(`[data-id="${notificacionId}"]`);
         const botonesContainer = notificacion?.querySelector('.d-flex.gap-2.mt-2');
         if (botonesContainer) {
-            const botones = botonesContainer.querySelectorAll('button');
-            botones.forEach(btn => btn.disabled = false);
+            botonesContainer.querySelectorAll('button').forEach(btn => btn.disabled = false);
         }
     }
 };
 
-// Función para responder invitación a proyecto
-window.responderInvitacionProyecto = async function(proyectoId, invitacionId, nombreProyecto, accion) {
+// FUNCIÓN CORREGIDA - usa proyecto_id en el endpoint
+window.responderInvitacionProyecto = async function(proyectoId, notificacionId, nombreProyecto, accion) {
     try {
-        const response = await fetch(`${API_URL}/invitaciones/${invitacionId}/${accion}`, {
+        console.log('📤 Respondiendo invitación:', { proyectoId, notificacionId, nombreProyecto, accion });
+        
+        const notificacion = document.querySelector(`[data-id="${notificacionId}"]`);
+        const botonesContainer = notificacion?.querySelector('.d-flex.gap-2.mt-2');
+        if (botonesContainer) {
+            botonesContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        const response = await fetch(`${API_URL}/invitaciones/${proyectoId}/${accion}`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
         const data = await response.json();
+        console.log('📥 Respuesta:', data);
         
         if (data.success) {
+            // MARCAR NOTIFICACIÓN COMO LEÍDA EN EL BACKEND
+            await fetch(`${API_URL}/notificaciones/${notificacionId}/leer`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
             Swal.fire({
                 icon: 'success',
                 title: accion === 'aceptar' ? '¡Te has unido!' : 'Invitación rechazada',
-                text: accion === 'aceptar' 
+                text: accion === 'aceptar'
                     ? `Ahora eres parte del proyecto "${nombreProyecto}"`
                     : `Has rechazado la invitación a "${nombreProyecto}"`,
                 timer: 2000,
                 showConfirmButton: false
             });
             
-            // Marcar notificación como leída
-            const notificacion = document.querySelector(`[data-id="${invitacionId}"]`);
             if (notificacion) {
                 notificacion.classList.add('leida');
                 notificacion.classList.remove('no-leida');
                 
-                // Ocultar botones
-                const botones = notificacion.querySelector('.d-flex.gap-2.mt-2');
-                if (botones) {
-                    botones.innerHTML = `
+                if (botonesContainer) {
+                    botonesContainer.innerHTML = `
                         <span class="badge ${accion === 'aceptar' ? 'bg-success' : 'bg-secondary'}">
                             ${accion === 'aceptar' ? '✓ Aceptada' : '✗ Rechazada'}
                         </span>
@@ -164,18 +161,25 @@ window.responderInvitacionProyecto = async function(proyectoId, invitacionId, no
             }
             
             await actualizarBadgeNotificaciones();
+        } else {
+            throw new Error(data.error || 'Error al procesar invitación');
         }
     } catch (error) {
-        console.error('Error respondiendo invitación:', error);
+        console.error('❌ Error respondiendo invitación:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudo procesar la invitación'
+            text: error.message || 'No se pudo procesar la invitación'
         });
+        
+        const notificacion = document.querySelector(`[data-id="${notificacionId}"]`);
+        const botonesContainer = notificacion?.querySelector('.d-flex.gap-2.mt-2');
+        if (botonesContainer) {
+            botonesContainer.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        }
     }
 };
 
-// Eliminar notificación
 window.eliminarNotificacion = async function(id) {
     try {
         const response = await fetch(`${API_URL}/notificaciones/${id}`, {
@@ -194,7 +198,6 @@ window.eliminarNotificacion = async function(id) {
                     notificacion.remove();
                     actualizarBadgeNotificaciones();
                     
-                    // Verificar si ya no hay notificaciones
                     if (document.querySelectorAll('.notification-card').length === 0) {
                         document.getElementById('notificacionesContainer').innerHTML = `
                             <div class="text-center text-white py-5">
@@ -211,7 +214,6 @@ window.eliminarNotificacion = async function(id) {
     }
 };
 
-// Cargar notificaciones
 async function cargarNotificaciones() {
     try {
         const response = await fetch(`${API_URL}/notificaciones`, {
@@ -235,7 +237,11 @@ async function cargarNotificaciones() {
             }
             
             container.innerHTML = data.notificaciones.map(n => `
-                <div class="notification-card ${!n.leido ? 'no-leida' : ''}" data-id="${n.id}" data-tipo="${n.tipo}" data-emisor-id="${n.emisor_id}" data-proyecto-id="${n.proyecto_id || ''}">
+                <div class="notification-card ${!n.leido ? 'no-leida' : ''}" 
+                     data-id="${n.id}" 
+                     data-tipo="${n.tipo}" 
+                     data-emisor-id="${n.emisor_id}" 
+                     data-proyecto-id="${n.proyecto_id || ''}">
                     <div class="d-flex align-items-center gap-3">
                         <div class="avatar-circle">
                             ${getIniciales(n.emisor_nombre)}
@@ -247,7 +253,6 @@ async function cargarNotificaciones() {
                             </div>
                             <p class="mb-2">${n.contenido}</p>
                             
-                            <!-- Botones para solicitudes de amistad -->
                             ${n.tipo === 'solicitud_amistad' && !n.leido ? `
                             <div class="d-flex gap-2 mt-2">
                                 <button class="btn-aceptar btn-sm" onclick="responderSolicitud(${n.emisor_id}, ${n.id}, 'aceptar')">
@@ -259,22 +264,27 @@ async function cargarNotificaciones() {
                             </div>
                             ` : ''}
                             
-                            <!-- Botones para invitaciones a proyecto -->
                             ${n.tipo === 'invitacion_proyecto' && !n.leido ? `
                             <div class="d-flex gap-2 mt-2">
-                                <button class="btn-aceptar btn-sm" onclick="responderInvitacionProyecto(${n.proyecto_id}, ${n.id}, '${n.proyecto_nombre || 'proyecto'}', 'aceptar')">
+                                <button class="btn-aceptar btn-sm" 
+                                    onclick="responderInvitacionProyecto(${n.proyecto_id}, ${n.id}, '${n.proyecto_nombre || ''}', 'aceptar')">
                                     <i class="fas fa-check me-1"></i>Aceptar
                                 </button>
-                                <button class="btn-rechazar btn-sm" onclick="responderInvitacionProyecto(${n.proyecto_id}, ${n.id}, '${n.proyecto_nombre || 'proyecto'}', 'rechazar')">
+                                <button class="btn-rechazar btn-sm" 
+                                    onclick="responderInvitacionProyecto(${n.proyecto_id}, ${n.id}, '${n.proyecto_nombre || ''}', 'rechazar')">
                                     <i class="fas fa-times me-1"></i>Rechazar
                                 </button>
                             </div>
                             ` : ''}
                             
-                            <!-- Para notificaciones ya leídas, mostrar ícono -->
                             ${(n.tipo !== 'solicitud_amistad' && n.tipo !== 'invitacion_proyecto') || n.leido ? `
                             <div class="mt-1">
-                                <small class="text-muted">${n.tipo === 'like' ? '❤️' : n.tipo === 'comentario' ? '💬' : n.tipo === 'amistad_aceptada' ? '👥' : '📢'}</small>
+                                <small class="text-muted">
+                                    ${n.tipo === 'like' ? '❤️' : 
+                                      n.tipo === 'comentario' ? '💬' : 
+                                      n.tipo === 'amistad_aceptada' ? '👥' : 
+                                      n.tipo === 'invitacion_aceptada' ? '✅' : '📢'}
+                                </small>
                             </div>
                             ` : ''}
                         </div>
@@ -295,9 +305,7 @@ async function cargarNotificaciones() {
     }
 }
 
-// Marcar como leída al hacer clic (excepto en botones)
 document.addEventListener('click', async (e) => {
-    // No hacer nada si se hizo clic en un botón o enlace
     if (e.target.closest('button') || e.target.closest('a')) return;
     
     const notificacion = e.target.closest('.notification-card');
@@ -316,28 +324,36 @@ document.addEventListener('click', async (e) => {
     }
 });
 
-// Cerrar sesión
-document.getElementById('cerrarSesion')?.addEventListener('click', function(e) {
+// Cerrar sesión - actualizado para registrar logout
+document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
     e.preventDefault();
     
-    Swal.fire({
+    const result = await Swal.fire({
         title: '¿Cerrar sesión?',
-        text: '¿Estás seguro que deseas salir?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#9ED9CC',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, cerrar sesión',
+        confirmButtonText: 'Sí, salir',
         cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
     });
+    
+    if (result.isConfirmed) {
+        try {
+            // Registrar logout en el backend
+            await fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.error('Error registrando logout:', error);
+        }
+        
+        // Limpiar localStorage y redirigir
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
 });
 
-// Inicializar
 document.addEventListener('DOMContentLoaded', function() {
     cargarNotificaciones();
 });

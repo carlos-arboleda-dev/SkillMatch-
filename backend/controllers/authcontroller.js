@@ -2,6 +2,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const pool = require('../config/db');
 
 // Registro de usuario - definida como función con nombre
 const register = async (req, res) => {
@@ -60,7 +61,7 @@ const register = async (req, res) => {
     }
 };
 
-// Login de usuario - definida como función con nombre
+// Login de usuario
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -82,6 +83,12 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
+        // 👇 ACTUALIZAR ÚLTIMO LOGIN
+        await pool.query(
+            'UPDATE usuarios SET ultimo_login = NOW() WHERE id = $1',
+            [user.id]
+        );
+
         // Generar token JWT
         const token = jwt.sign(
             { 
@@ -90,10 +97,10 @@ const login = async (req, res) => {
                 nombre: user.nombre_completo 
             },
             process.env.JWT_SECRET || 'SkillMatch2025SecretKey!',
-            { expiresIn: '30d' }
+            { expiresIn: '24h' }
         );
 
-        // Responder con éxito (AGREGAMOS user.rol)
+        // Responder con éxito
         res.json({
             success: true,
             message: 'Login exitoso',
@@ -103,7 +110,7 @@ const login = async (req, res) => {
                 nombre: user.nombre_completo,
                 email: user.correo_institucional,
                 programa: user.programa_academico,
-                rol: user.rol  // 👈 ESTA LÍNEA ES LA QUE FALTA
+                rol: user.rol
             }
         });
 
@@ -160,9 +167,32 @@ const registerAdmin = async (req, res) => {
     }
 };
 
+// Logout - registrar última desconexión
+const logout = async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ error: 'Token requerido' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
+        
+        await pool.query(
+            'UPDATE usuarios SET ultimo_logout = NOW() WHERE id = $1',
+            [decoded.userId]
+        );
+        
+        res.json({ success: true, message: 'Sesión cerrada correctamente' });
+    } catch (error) {
+        console.error('Error en logout:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
+
 // Exportar ambas funciones como objeto
 module.exports = {
     register,
     login,
-    registerAdmin
+    registerAdmin,
+    logout
 };
