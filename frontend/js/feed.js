@@ -439,14 +439,12 @@ function mostrarProyectos(proyectos) {
             
             <!-- Botones de acción -->
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <!-- Botón de unirse -->
                 <button class="btn-join" onclick="unirseAProyecto(${proyecto.id}, '${tituloEscapado}')">
                     <i class="fas fa-user-plus me-1"></i>Unirse
                 </button>
                 
-                <!-- Botón de invitar amigos (solo visible para el creador) -->
                 ${esCreador ? `
-                <button class="btn-invite" onclick="mostrarAmigosParaInvitar(${proyecto.id}, '${tituloEscapado}')" title="Invitar amigos">
+                <button class="btn-invite" onclick="mostrarAmigosParaInvitar(${proyecto.id}, '${tituloEscapado}')">
                     <i class="fas fa-user-friends me-1"></i>Invitar
                 </button>
                 ` : ''}
@@ -455,16 +453,18 @@ function mostrarProyectos(proyectos) {
     `}).join('');
 }
 
-// Función para unirse a proyecto
-// Función para unirse a proyecto
+// Unirse a proyecto - VERSIÓN REAL
 window.unirseAProyecto = async function(proyectoId, proyectoNombre) {
     try {
+        const boton = document.querySelector(`[data-proyecto-id="${proyectoId}"] .btn-join`);
+        if (boton) {
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uniendo...';
+            boton.disabled = true;
+        }
+        
         const response = await fetch(`${API_URL}/proyectos/${proyectoId}/unirse`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         
         const data = await response.json();
@@ -473,13 +473,12 @@ window.unirseAProyecto = async function(proyectoId, proyectoNombre) {
             Swal.fire({
                 icon: 'success',
                 title: '¡Te has unido!',
-                text: `Ahora eres parte de: ${proyectoNombre}`,
+                text: `Ahora eres parte del proyecto: ${proyectoNombre}`,
                 timer: 2000,
                 showConfirmButton: false
             });
             
             // Cambiar estado del botón
-            const boton = document.querySelector(`[data-proyecto-id="${proyectoId}"] .btn-join`);
             if (boton) {
                 boton.textContent = '✓ Unido';
                 boton.style.background = '#9ED9CC';
@@ -491,6 +490,10 @@ window.unirseAProyecto = async function(proyectoId, proyectoNombre) {
                 title: 'Error',
                 text: data.error || 'No se pudo unir al proyecto'
             });
+            if (boton) {
+                boton.innerHTML = '<i class="fas fa-user-plus me-1"></i>Unirse';
+                boton.disabled = false;
+            }
         }
     } catch (error) {
         console.error('Error al unirse:', error);
@@ -499,6 +502,12 @@ window.unirseAProyecto = async function(proyectoId, proyectoNombre) {
             title: 'Error',
             text: 'Error de conexión'
         });
+        
+        const boton = document.querySelector(`[data-proyecto-id="${proyectoId}"] .btn-join`);
+        if (boton) {
+            boton.innerHTML = '<i class="fas fa-user-plus me-1"></i>Unirse';
+            boton.disabled = false;
+        }
     }
 };
 

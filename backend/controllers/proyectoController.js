@@ -73,7 +73,10 @@ const proyectoController = {
 
     // Unirse a un proyecto
     async unirseAProyecto(req, res) {
+        const client = await pool.connect();
         try {
+            await client.query('BEGIN');
+            
             const token = req.header('Authorization')?.replace('Bearer ', '');
             if (!token) {
                 return res.status(401).json({ error: 'Token requerido' });
@@ -85,12 +88,13 @@ const proyectoController = {
             const { proyecto_id } = req.params;
             
             // Verificar si el proyecto existe
-            const proyectoQuery = await pool.query(
-                'SELECT creador_id, nombre FROM proyectos WHERE id = $1',
+            const proyectoQuery = await client.query(
+                'SELECT id, nombre, creador_id FROM proyectos WHERE id = $1',
                 [proyecto_id]
             );
             
             if (proyectoQuery.rows.length === 0) {
+                await client.query('ROLLBACK');
                 return res.status(404).json({ error: 'Proyecto no encontrado' });
             }
             
@@ -98,30 +102,64 @@ const proyectoController = {
             
             // Verificar que no sea el dueño
             if (proyecto.creador_id === usuario_id) {
+                await client.query('ROLLBACK');
                 return res.status(400).json({ error: 'Eres el dueño del proyecto' });
             }
             
-            // Aquí deberías crear una tabla de miembros_proyecto si no existe
-            // Por ahora simulamos que se unió correctamente
+            // Verificar si ya es miembro
+            const miembroQuery = await client.query(
+                'SELECT * FROM miembros_proyecto WHERE proyecto_id = $1 AND usuario_id = $2',
+                [proyecto_id, usuario_id]
+            );
             
-            // 👇 CREAR NOTIFICACIÓN AL DUEÑO
+            if (miembroQuery.rows.length > 0) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: 'Ya eres miembro de este proyecto' });
+            }
+            
+            // Agregar como miembro
+            await client.query(
+                'INSERT INTO miembros_proyecto (proyecto_id, usuario_id) VALUES ($1, $2)',
+                [proyecto_id, usuario_id]
+            );
+            
+            // Obtener nombre del usuario que se une
+            const userQuery = await client.query(
+                'SELECT nombre_completo FROM usuarios WHERE id = $1',
+                [usuario_id]
+            );
+            
+            // Crear notificación para el dueño del proyecto
             const Notificacion = require('../models/notificacion');
             await Notificacion.create({
                 usuario_id: proyecto.creador_id,
                 tipo: 'union',
                 emisor_id: usuario_id,
                 proyecto_id,
-                contenido: `se ha unido a tu proyecto "${proyecto.nombre}"`
+                contenido: `${userQuery.rows[0].nombre_completo} se ha unido a tu proyecto "${proyecto.nombre}"`
             });
             
-            res.json({
-                success: true,
-                message: 'Te has unido al proyecto'
+            // Crear chat del proyecto si no existe
+            await client.query(
+                `INSERT INTO chats (id, tipo, nombre) 
+                VALUES ($1, 'proyecto', $2) 
+                ON CONFLICT (id) DO NOTHING`,
+                [`proyecto-${proyecto_id}`, `Chat del proyecto: ${proyecto.nombre}`]
+            );
+            
+            await client.query('COMMIT');
+            
+            res.json({ 
+                success: true, 
+                message: 'Te has unido al proyecto correctamente' 
             });
             
         } catch (error) {
+            await client.query('ROLLBACK');
             console.error('Error al unirse:', error);
             res.status(500).json({ error: 'Error del servidor' });
+        } finally {
+            client.release();
         }
     }
 };

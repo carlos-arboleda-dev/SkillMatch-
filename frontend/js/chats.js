@@ -1,4 +1,3 @@
-// frontend/js/chats.js
 const API_URL = 'http://localhost:3000/api';
 const token = localStorage.getItem('token');
 
@@ -6,102 +5,114 @@ if (!token) window.location.href = 'login.html';
 
 let currentChat = null;
 let chats = [];
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+const miId = parseInt(user.id);
 
-// Obtener iniciales de un nombre
 function obtenerIniciales(nombre) {
     if (!nombre) return '?';
     return nombre.split(' ').map(word => word[0].toUpperCase()).slice(0, 2).join('');
 }
 
-// Cargar lista de chats
+function generarChatId(idA, idB) {
+    const a = parseInt(idA);
+    const b = parseInt(idB);
+    return `amigo-${Math.min(a, b)}-${Math.max(a, b)}`;
+}
+
+// USA EL ENDPOINT UNIFICADO - no dos llamadas separadas
 async function cargarChats() {
     try {
         console.log('🔄 Cargando chats...');
-        
-        // Obtener amigos (aceptados)
-        const amigosResponse = await fetch(`${API_URL}/amistades/amigos`, {
+
+        const response = await fetch(`${API_URL}/mensajes/chats`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const amigosData = await amigosResponse.json();
-        console.log('Amigos:', amigosData);
-        
-        // Obtener proyectos donde participa
-        const proyectosResponse = await fetch(`${API_URL}/proyectos/mis-proyectos`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const proyectosData = await proyectosResponse.json();
-        console.log('Proyectos:', proyectosData);
-        
+        const data = await response.json();
+        console.log('Chats del servidor:', data);
+
         chats = [];
-        
-        // Agregar amigos a la lista de chats
-        if (amigosData.success && amigosData.amigos && amigosData.amigos.length > 0) {
-            amigosData.amigos.forEach(amigo => {
-                chats.push({
-                    id: `amigo-${amigo.id}`,
-                    tipo: 'amigo',
-                    nombre: amigo.nombre_completo,
-                    codigo: amigo.codigo_estudiantil,
-                    usuarioId: amigo.id
-                });
+
+        if (data.success && data.chats) {
+            data.chats.forEach(chat => {
+                if (chat.tipo === 'amigo') {
+                    // Reconstruir ID simétrico con el usuarioId del amigo
+                    chats.push({
+                        ...chat,
+                        id: generarChatId(miId, chat.usuarioId)
+                    });
+                } else {
+                    chats.push(chat); // proyectos ya vienen con id correcto
+                }
             });
         }
-        
-        // Agregar proyectos a la lista de chats
-        if (proyectosData && proyectosData.length > 0) {
-            proyectosData.forEach(proyecto => {
-                chats.push({
-                    id: `proyecto-${proyecto.id}`,
-                    tipo: 'proyecto',
-                    nombre: proyecto.nombre,
-                    proyectoId: proyecto.id
-                });
-            });
-        }
-        
-        console.log('Chats cargados:', chats);
+
+        console.log('Chats procesados:', chats);
         renderizarChats();
-        
+
     } catch (error) {
         console.error('Error cargando chats:', error);
     }
-    
+
     actualizarBadgeNotificaciones();
 }
 
-// Renderizar lista de chats
 function renderizarChats() {
     const chatsList = document.getElementById('chatsList');
-    
+
     if (chats.length === 0) {
-        chatsList.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6c757d;"><p>No hay chats disponibles. Agrega amigos o únete a proyectos.</p></div>';
+        chatsList.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: #6c757d;">
+                <p>No hay chats disponibles.<br>Agrega amigos o únete a proyectos.</p>
+            </div>`;
         return;
     }
 
-    chatsList.innerHTML = chats.map(chat => `
-        <div class="chat-item ${currentChat?.id === chat.id ? 'active' : ''}" onclick="seleccionarChat('${chat.id}')">
-            <div class="chat-avatar">${obtenerIniciales(chat.nombre)}</div>
-            <div class="chat-info">
-                <div class="chat-name">${chat.nombre}</div>
-                <div class="chat-context">
-                    ${chat.tipo === 'amigo' ? (chat.codigo ? `(${chat.codigo})` : 'Amigo') : 'Proyecto'}
-                </div>
-            </div>
-        </div>
-    `).join('');
+    // Separar amigos y proyectos para mostrarlos agrupados
+    const amigos = chats.filter(c => c.tipo === 'amigo');
+    const proyectos = chats.filter(c => c.tipo === 'proyecto');
+
+    let html = '';
+
+    if (proyectos.length > 0) {
+        html += `<div class="chat-section-title" style="padding: 0.5rem 1rem; font-size: 0.75rem; color: #9ED9CC; font-weight: 600; text-transform: uppercase;">Grupos de Proyecto</div>`;
+        html += proyectos.map(chat => renderChatItem(chat)).join('');
+    }
+
+    if (amigos.length > 0) {
+        html += `<div class="chat-section-title" style="padding: 0.5rem 1rem; font-size: 0.75rem; color: #9ED9CC; font-weight: 600; text-transform: uppercase; margin-top: 0.5rem;">Amigos</div>`;
+        html += amigos.map(chat => renderChatItem(chat)).join('');
+    }
+
+    chatsList.innerHTML = html;
 }
 
-// Seleccionar un chat
+function renderChatItem(chat) {
+    const isActive = currentChat?.id === chat.id;
+    const subtitulo = chat.tipo === 'proyecto'
+        ? '👥 Grupo del proyecto'
+        : (chat.codigo ? `(${chat.codigo})` : 'Amigo');
+
+    return `
+        <div class="chat-item ${isActive ? 'active' : ''}" onclick="seleccionarChat('${chat.id}')">
+            <div class="chat-avatar" style="${chat.tipo === 'proyecto' ? 'background: #9ED9CC; color: #fff;' : ''}">
+                ${chat.tipo === 'proyecto' ? '<i class="fas fa-users" style="font-size:0.9rem"></i>' : obtenerIniciales(chat.nombre)}
+            </div>
+            <div class="chat-info">
+                <div class="chat-name">${chat.nombre}</div>
+                <div class="chat-context">${subtitulo}</div>
+            </div>
+        </div>
+    `;
+}
+
 window.seleccionarChat = async function(chatId) {
     currentChat = chats.find(c => c.id === chatId);
     renderizarChats();
     await cargarMensajes();
 };
 
-// Cargar mensajes del chat
 async function cargarMensajes() {
     const chatWindow = document.getElementById('chatWindow');
-    
     if (!currentChat) return;
 
     console.log('📂 Cargando mensajes para chat:', currentChat.id);
@@ -110,7 +121,7 @@ async function cargarMensajes() {
         <div class="chat-header">
             <div class="chat-header-info">
                 <h5>${escapeHtml(currentChat.nombre)}</h5>
-                <p>${currentChat.tipo === 'amigo' ? 'Conversación privada' : 'Chat del proyecto'}</p>
+                <p>${currentChat.tipo === 'proyecto' ? '👥 Grupo del proyecto' : 'Conversación privada'}</p>
             </div>
         </div>
         <div class="messages-container" id="messagesContainer">
@@ -127,91 +138,75 @@ async function cargarMensajes() {
         </div>
     `;
 
-    // Permitir enviar con Enter
     document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            enviarMensaje();
-        }
+        if (e.key === 'Enter') enviarMensaje();
     });
 
-    // Cargar mensajes reales
     try {
-        const response = await fetch(`${API_URL}/mensajes/${currentChat.id}`, {
+        const response = await fetch(`${API_URL}/mensajes/${encodeURIComponent(currentChat.id)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         const data = await response.json();
         console.log('📥 Mensajes recibidos:', data);
-        
-        if (data.success) {
-            const container = document.getElementById('messagesContainer');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            
-            if (!data.mensajes || data.mensajes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-comment-dots"></i>
-                        <p>No hay mensajes aún</p>
-                        <p style="font-size: 0.9rem;">¡Sé el primero en escribir!</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = data.mensajes.map(m => {
-                    const esMiMensaje = m.usuario_id === user.id;
-                    console.log(`Mensaje de ${m.autor_nombre} (${m.usuario_id}) vs yo (${user.id}) -> ${esMiMensaje ? 'mío' : 'de otro'}`);
-                    
-                    return `
-                        <div class="message ${esMiMensaje ? 'sent' : 'received'}">
-                            <div class="message-bubble">
-                                ${escapeHtml(m.mensaje)}
-                                <div class="message-time">
-                                    ${m.autor_nombre} • ${formatearFecha(m.created_at)}
-                                </div>
+
+        const container = document.getElementById('messagesContainer');
+
+        if (!data.success) {
+            container.innerHTML = `<div class="alert alert-danger">${data.error || 'Error al cargar mensajes'}</div>`;
+            return;
+        }
+
+        if (!data.mensajes || data.mensajes.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>No hay mensajes aún</p>
+                    <p style="font-size: 0.9rem;">¡Sé el primero en escribir!</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = data.mensajes.map(m => {
+                const esMiMensaje = parseInt(m.usuario_id) === miId;
+                return `
+                    <div class="message ${esMiMensaje ? 'sent' : 'received'}">
+                        <div class="message-bubble">
+                            ${!esMiMensaje && currentChat.tipo === 'proyecto' ? `<div class="message-author">${m.autor_nombre}</div>` : ''}
+                            ${escapeHtml(m.mensaje)}
+                            <div class="message-time">
+                                ${esMiMensaje ? 'Tú' : m.autor_nombre} • ${formatearFecha(m.created_at)}
                             </div>
                         </div>
-                    `;
-                }).join('');
-                
-                // Scroll al final
-                container.scrollTop = container.scrollHeight;
-            }
+                    </div>
+                `;
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
         }
     } catch (error) {
         console.error('Error cargando mensajes:', error);
         document.getElementById('messagesContainer').innerHTML = `
-            <div class="alert alert-danger">
-                Error al cargar mensajes
-            </div>
+            <div class="alert alert-danger">Error al cargar mensajes</div>
         `;
     }
 }
 
-// Enviar mensaje
 window.enviarMensaje = async function() {
     const input = document.getElementById('messageInput');
     const mensaje = input?.value.trim();
-
     if (!mensaje || !currentChat) return;
 
-    console.log('📤 Enviando mensaje a:', currentChat.id, 'Mensaje:', mensaje);
-
-    // Mostrar el mensaje temporalmente
     const container = document.getElementById('messagesContainer');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
     const tempId = Date.now();
-    const tempMsg = `
+
+    container.innerHTML += `
         <div class="message sent" data-temp="${tempId}">
             <div class="message-bubble">
                 ${escapeHtml(mensaje)}
-                <div class="message-time">
-                    Tú • Enviando...
-                </div>
+                <div class="message-time">Tú • Enviando...</div>
             </div>
         </div>
     `;
-    
-    container.innerHTML += tempMsg;
     input.value = '';
     container.scrollTop = container.scrollHeight;
 
@@ -222,17 +217,12 @@ window.enviarMensaje = async function() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                chat_id: currentChat.id,
-                mensaje: mensaje
-            })
+            body: JSON.stringify({ chat_id: currentChat.id, mensaje })
         });
-        
+
         const data = await response.json();
-        console.log('📥 Respuesta:', data);
-        
+
         if (data.success) {
-            // Recargar mensajes
             await cargarMensajes();
         } else {
             document.querySelector(`[data-temp="${tempId}"]`)?.remove();
@@ -245,27 +235,24 @@ window.enviarMensaje = async function() {
     }
 };
 
-// Función para escapar HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Formatear fecha
 function formatearFecha(fecha) {
     const d = new Date(fecha);
     const hoy = new Date();
     const diff = hoy - d;
     const minutos = Math.floor(diff / 60000);
-    
+
     if (minutos < 1) return 'Ahora';
     if (minutos < 60) return `Hace ${minutos} min`;
-    if (minutos < 1440) return `Hace ${Math.floor(minutos/60)} h`;
-    return `${d.getDate()}/${d.getMonth()+1} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    if (minutos < 1440) return `Hace ${Math.floor(minutos / 60)} h`;
+    return `${d.getDate()}/${d.getMonth() + 1} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
 }
 
-// Actualizar badge de notificaciones
 async function actualizarBadgeNotificaciones() {
     try {
         const response = await fetch(`${API_URL}/notificaciones/contar`, {
@@ -282,14 +269,13 @@ async function actualizarBadgeNotificaciones() {
             }
         }
     } catch (error) {
-        console.error('Error actualizando badge:', error);
+        console.error('Error badge:', error);
     }
 }
 
-// Cerrar sesión - actualizado para registrar logout
 document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
     e.preventDefault();
-    
+
     const result = await Swal.fire({
         title: '¿Cerrar sesión?',
         icon: 'question',
@@ -298,25 +284,17 @@ document.getElementById('cerrarSesion')?.addEventListener('click', async functio
         confirmButtonText: 'Sí, salir',
         cancelButtonText: 'Cancelar'
     });
-    
+
     if (result.isConfirmed) {
         try {
-            // Registrar logout en el backend
             await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-        } catch (error) {
-            console.error('Error registrando logout:', error);
-        }
-        
-        // Limpiar localStorage y redirigir
+        } catch (e) {}
         localStorage.clear();
         window.location.href = 'login.html';
     }
 });
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', function() {
-    cargarChats();
-});
+document.addEventListener('DOMContentLoaded', cargarChats);

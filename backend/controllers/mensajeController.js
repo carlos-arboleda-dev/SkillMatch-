@@ -3,13 +3,10 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
 const mensajeController = {
-    // Enviar mensaje
     async enviarMensaje(req, res) {
         try {
             const token = req.header('Authorization')?.replace('Bearer ', '');
-            if (!token) {
-                return res.status(401).json({ error: 'Token requerido' });
-            }
+            if (!token) return res.status(401).json({ error: 'Token requerido' });
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
             const usuario_id = decoded.userId;
@@ -20,14 +17,15 @@ const mensajeController = {
                 return res.status(400).json({ error: 'Faltan datos requeridos' });
             }
             
-            // Verificar que el usuario tiene acceso al chat
-            const chat = await pool.query(
-                'SELECT * FROM chats WHERE id = $1',
-                [chat_id]
-            );
+            // Verificar acceso
+            const acceso = await verificarAccesoChat(usuario_id, chat_id);
+            if (!acceso) {
+                return res.status(403).json({ error: 'No tienes acceso a este chat' });
+            }
             
+            // Crear chat si no existe
+            const chat = await pool.query('SELECT * FROM chats WHERE id = $1', [chat_id]);
             if (chat.rows.length === 0) {
-                // Crear el chat si no existe (para mantener compatibilidad)
                 const tipo = chat_id.startsWith('amigo-') ? 'amigo' : 'proyecto';
                 await pool.query(
                     'INSERT INTO chats (id, tipo, nombre) VALUES ($1, $2, $3)',
@@ -35,14 +33,8 @@ const mensajeController = {
                 );
             }
             
-            // Guardar mensaje
-            const nuevoMensaje = await Mensaje.crear({
-                chat_id,
-                usuario_id,
-                mensaje
-            });
+            const nuevoMensaje = await Mensaje.crear({ chat_id, usuario_id, mensaje });
             
-            // Obtener nombre del usuario
             const userQuery = await pool.query(
                 'SELECT nombre_completo FROM usuarios WHERE id = $1',
                 [usuario_id]
@@ -62,13 +54,10 @@ const mensajeController = {
         }
     },
     
-    // Obtener mensajes de un chat
     async obtenerMensajes(req, res) {
         try {
             const token = req.header('Authorization')?.replace('Bearer ', '');
-            if (!token) {
-                return res.status(401).json({ error: 'Token requerido' });
-            }
+            if (!token) return res.status(401).json({ error: 'Token requerido' });
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
             const usuario_id = decoded.userId;
@@ -76,22 +65,15 @@ const mensajeController = {
             const { chat_id } = req.params;
             const limite = req.query.limite || 50;
             
-            // Verificar acceso al chat
             const acceso = await verificarAccesoChat(usuario_id, chat_id);
             if (!acceso) {
                 return res.status(403).json({ error: 'No tienes acceso a este chat' });
             }
             
-            // Marcar mensajes como leídos
             await Mensaje.marcarLeidos(chat_id, usuario_id);
-            
-            // Obtener mensajes
             const mensajes = await Mensaje.obtenerPorChat(chat_id, limite);
             
-            res.json({
-                success: true,
-                mensajes
-            });
+            res.json({ success: true, mensajes });
             
         } catch (error) {
             console.error('Error obteniendo mensajes:', error);
@@ -99,22 +81,16 @@ const mensajeController = {
         }
     },
     
-    // Obtener lista de chats del usuario
     async obtenerChats(req, res) {
         try {
             const token = req.header('Authorization')?.replace('Bearer ', '');
-            if (!token) {
-                return res.status(401).json({ error: 'Token requerido' });
-            }
+            if (!token) return res.status(401).json({ error: 'Token requerido' });
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'SkillMatch2025SecretKey!');
             const usuario_id = decoded.userId;
             
-            console.log('🔍 Obteniendo chats para usuario:', usuario_id);
-            
             const chats = [];
             
-            // 1. Obtener amigos (conversaciones individuales)
             const amigos = await pool.query(`
                 SELECT u.id, u.nombre_completo, u.codigo_estudiantil
                 FROM amistades a
@@ -122,28 +98,24 @@ const mensajeController = {
                 WHERE a.usuario_id = $1 AND a.estado = 'aceptada'
             `, [usuario_id]);
             
-            console.log('Amigos encontrados:', amigos.rows);
-            
             amigos.rows.forEach(amigo => {
+                const ids = [parseInt(usuario_id), parseInt(amigo.id)].sort((a, b) => a - b);
                 chats.push({
-                    id: `amigo-${amigo.id}`,
+                    id: `amigo-${ids[0]}-${ids[1]}`,
                     tipo: 'amigo',
                     nombre: amigo.nombre_completo,
                     codigo: amigo.codigo_estudiantil,
-                    usuarioId: amigo.id
+                    usuarioId: amigo.id  // ← necesario para el frontend
                 });
             });
             
-            // 2. Obtener proyectos
             const proyectos = await pool.query(`
                 SELECT DISTINCT p.id, p.nombre
                 FROM proyectos p
                 LEFT JOIN miembros_proyecto mp ON p.id = mp.proyecto_id
                 WHERE p.creador_id = $1 OR mp.usuario_id = $1
             `, [usuario_id]);
-            
-            console.log('Proyectos encontrados:', proyectos.rows);
-            
+
             proyectos.rows.forEach(proyecto => {
                 chats.push({
                     id: `proyecto-${proyecto.id}`,
@@ -153,12 +125,7 @@ const mensajeController = {
                 });
             });
             
-            console.log('Total chats:', chats.length);
-            
-            res.json({
-                success: true,
-                chats
-            });
+            res.json({ success: true, chats });
             
         } catch (error) {
             console.error('Error obteniendo chats:', error);
@@ -167,38 +134,59 @@ const mensajeController = {
     }
 };
 
-// Función auxiliar para verificar acceso al chat
+// FIX: verificar acceso con nuevo formato amigo-{idMenor}-{idMayor}
 async function verificarAccesoChat(usuario_id, chat_id) {
     if (chat_id.startsWith('amigo-')) {
-        const amigoId = parseInt(chat_id.split('-')[1]);
-        const check = await pool.query(
-            `SELECT * FROM amistades 
-             WHERE (usuario_id = $1 AND amigo_id = $2 AND estado = 'aceptada')
-                OR (usuario_id = $2 AND amigo_id = $1 AND estado = 'aceptada')`,
-            [usuario_id, amigoId]
-        );
-        return check.rows.length > 0;
-    } 
+        // Formato: amigo-3-7 → extraer los dos IDs
+        const partes = chat_id.split('-');
+        
+        if (partes.length === 3) {
+            // Nuevo formato simétrico: amigo-{id1}-{id2}
+            const id1 = parseInt(partes[1]);
+            const id2 = parseInt(partes[2]);
+            const uid = parseInt(usuario_id);
+            
+            // El usuario debe ser uno de los dos
+            if (uid !== id1 && uid !== id2) return false;
+            
+            const otroId = uid === id1 ? id2 : id1;
+            
+            const check = await pool.query(
+                `SELECT * FROM amistades 
+                 WHERE usuario_id = $1 AND amigo_id = $2 AND estado = 'aceptada'`,
+                [uid, otroId]
+            );
+            return check.rows.length > 0;
+        } else {
+            // Formato viejo: amigo-{id} — compatibilidad
+            const amigoId = parseInt(partes[1]);
+            const check = await pool.query(
+                `SELECT * FROM amistades 
+                 WHERE (usuario_id = $1 AND amigo_id = $2 AND estado = 'aceptada')
+                    OR (usuario_id = $2 AND amigo_id = $1 AND estado = 'aceptada')`,
+                [usuario_id, amigoId]
+            );
+            return check.rows.length > 0;
+        }
+    }
     else if (chat_id.startsWith('proyecto-')) {
         const proyectoId = parseInt(chat_id.split('-')[1]);
         
-        // Verificar si es creador o miembro
         const checkCreador = await pool.query(
             'SELECT id FROM proyectos WHERE id = $1 AND creador_id = $2',
             [proyectoId, usuario_id]
         );
-        
         if (checkCreador.rows.length > 0) return true;
         
         const checkMiembro = await pool.query(
             'SELECT id FROM miembros_proyecto WHERE proyecto_id = $1 AND usuario_id = $2',
             [proyectoId, usuario_id]
         );
-        
         return checkMiembro.rows.length > 0;
     }
     return false;
-};
+}
+
 
 // Obtener o crear chat personal
 async function obtenerOCrearChatPersonal(req, res) {
