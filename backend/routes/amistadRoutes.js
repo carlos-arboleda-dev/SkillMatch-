@@ -8,5 +8,7 @@ router.post('/solicitud/:amigo_id', verificarToken, amistadController.enviarSoli
 router.get('/solicitudes-pendientes', verificarToken, amistadController.obtenerSolicitudesPendientes);
 router.put('/aceptar/:amigo_id', verificarToken, amistadController.aceptarSolicitud);
 router.put('/rechazar/:amigo_id', verificarToken, amistadController.rechazarSolicitud);
+router.get('/amigos', verificarToken, amistadController.obtenerAmigos);
+
 
 module.exports = router;
