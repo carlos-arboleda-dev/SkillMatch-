@@ -1,5 +1,5 @@
 // frontend/js/perfilacademico.js
-const API_URL = 'http://localhost:3000/api';
+
 
 // Obtener token del localStorage
 const token = localStorage.getItem('token');

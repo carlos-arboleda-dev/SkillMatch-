@@ -1,4 +1,6 @@
 // frontend/js/comentarios.js
+
+
 let proyectoActualId = null;
 
 // Abrir modal de comentarios

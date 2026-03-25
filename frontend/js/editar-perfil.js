@@ -1,5 +1,6 @@
 // frontend/js/editar-perfil.js
-const API_URL = 'http://localhost:3000/api';
+
+
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 

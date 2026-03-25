@@ -1,5 +1,6 @@
 // frontend/js/feed.js
-const API_URL = 'http://localhost:3000/api';
+
+
 const token = localStorage.getItem('token');
 
 if (!token) {

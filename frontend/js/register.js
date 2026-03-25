@@ -1,7 +1,7 @@
 // frontend/js/register.js
 
 // URL base de la API (ajusta según tu configuración)
-const API_URL = 'http://localhost:3000/api';
+
 
 // Elementos del DOM
 const registerForm = document.getElementById('registerForm');

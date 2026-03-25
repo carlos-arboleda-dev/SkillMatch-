@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+
 
 document.getElementById('registerAdminForm').addEventListener('submit', async (e) => {
     e.preventDefault();

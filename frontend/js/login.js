@@ -1,5 +1,5 @@
 // frontend/js/login.js
-const API_URL = 'http://localhost:3000/api';
+
 
 // Elementos del DOM
 const loginForm = document.getElementById('loginForm');
@@ -59,7 +59,6 @@ loginForm.addEventListener('submit', async (e) => {
     setLoading(true);
 
     // frontend/js/login.js
-const API_URL = 'http://localhost:3000/api';
 
 // ... (todo el código anterior igual, pero reemplaza la parte del try)
 

@@ -1,5 +1,5 @@
 // JavaScript para la página de crear proyecto
-const API_URL = 'http://localhost:3000/api';
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('crearProyectoForm');
     const cancelarBtn = document.getElementById('cancelar');

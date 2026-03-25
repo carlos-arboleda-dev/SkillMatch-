@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api';
+
+
 const token = localStorage.getItem('token');
 
 if (!token) window.location.href = 'login.html';
@@ -273,9 +274,10 @@ async function actualizarBadgeNotificaciones() {
     }
 }
 
+// Cerrar sesión - actualizado para registrar logout
 document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
     e.preventDefault();
-
+    
     const result = await Swal.fire({
         title: '¿Cerrar sesión?',
         icon: 'question',
@@ -284,17 +286,23 @@ document.getElementById('cerrarSesion')?.addEventListener('click', async functio
         confirmButtonText: 'Sí, salir',
         cancelButtonText: 'Cancelar'
     });
-
+    
     if (result.isConfirmed) {
         try {
+            // Registrar logout en el backend
             await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-        } catch (e) {}
+        } catch (error) {
+            console.error('Error registrando logout:', error);
+        }
+        
+        // Limpiar localStorage y redirigir
         localStorage.clear();
         window.location.href = 'login.html';
     }
 });
+
 
 document.addEventListener('DOMContentLoaded', cargarChats);
