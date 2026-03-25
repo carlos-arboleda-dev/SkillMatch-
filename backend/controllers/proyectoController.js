@@ -26,6 +26,7 @@ const proyectoController = {
                 FROM proyectos p
                 JOIN usuarios u ON p.creador_id = u.id
                 LEFT JOIN perfil_academico pf ON u.codigo_estudiantil = pf.codigo_estudiantil
+                WHERE p.estado = 'aprobado'
                 ORDER BY p.created_at DESC
                 LIMIT 20;
             `;

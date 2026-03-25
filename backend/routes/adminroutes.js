@@ -21,6 +21,10 @@ router.get('/proyectos', adminController.obtenerProyectos);
 router.put('/proyectos/:id/estado', adminController.cambiarEstadoProyecto);
 router.delete('/proyectos/:id', adminController.eliminarProyecto);
 
+// 🔵 NUEVO: Proyectos pendientes para revisión
+router.get('/proyectos-pendientes', adminController.obtenerProyectosPendientes);
+router.put('/proyectos/:id/revisar', adminController.revisarProyecto);
+
 // Exportar
 router.get('/exportar/:tipo', adminController.exportarDatos);
 

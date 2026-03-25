@@ -185,6 +185,7 @@ const adminController = {
         try {
             const result = await pool.query(`
                 SELECT p.*, u.nombre_completo as creador_nombre,
+                       p.estado,
                        COALESCE(p.activo, true) as activo,
                        (SELECT COUNT(*) FROM miembros_proyecto WHERE proyecto_id = p.id) as miembros_count
                 FROM proyectos p
@@ -231,6 +232,106 @@ const adminController = {
         } catch (error) {
             console.error('Error eliminando proyecto:', error);
             res.status(500).json({ error: 'Error del servidor' });
+        }
+    },
+
+    // 🔵 NUEVO: Obtener proyectos pendientes de revisión
+    async obtenerProyectosPendientes(req, res) {
+        try {
+            console.log('🔵 Obteniendo proyectos pendientes...');
+            const result = await pool.query(`
+                SELECT p.*, 
+                       u.nombre_completo as creador_nombre,
+                       u.correo_institucional as creador_correo
+                FROM proyectos p
+                JOIN usuarios u ON p.creador_id = u.id
+                WHERE p.estado = 'pendiente'
+                ORDER BY p.created_at DESC
+            `);
+            console.log(`📋 Encontrados ${result.rows.length} proyectos pendientes`);
+            res.json(result.rows);
+        } catch (error) {
+            console.error('Error obteniendo proyectos pendientes:', error);
+            res.status(500).json({ error: 'Error del servidor' });
+        }
+    },
+
+    // 🔵 NUEVO: Revisar proyecto (aceptar/rechazar)
+    async revisarProyecto(req, res) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            
+            const { id } = req.params;
+            const { accion, motivo_rechazo } = req.body;
+            const admin_id = req.user.userId;
+            
+            if (!['aceptar', 'rechazar'].includes(accion)) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: 'Acción inválida' });
+            }
+            
+            if (accion === 'rechazar' && (!motivo_rechazo || motivo_rechazo.trim().length < 10)) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: 'Motivo de rechazo debe tener al menos 10 caracteres' });
+            }
+            
+            // Verificar proyecto existe y está pendiente
+            const proyecto = await client.query(
+                'SELECT * FROM proyectos WHERE id = $1 AND estado = \'pendiente\'', 
+                [id]
+            );
+            
+            if (proyecto.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ error: 'Proyecto no encontrado o no está pendiente' });
+            }
+            
+            const proyectoData = proyecto.rows[0];
+            const nuevoEstado = accion === 'aceptar' ? 'aprobado' : 'rechazado';
+            const mensaje = accion === 'aceptar' 
+                ? `¡Tu proyecto "${proyectoData.nombre}" ha sido aprobado! 🎉`
+                : `Tu proyecto "${proyectoData.nombre}" ha sido rechazado. Motivo: ${motivo_rechazo}`;
+            
+// Actualizar proyecto - FIX SQL params
+            if (accion === 'aceptar') {
+                await client.query(`
+                    UPDATE proyectos 
+                    SET estado = $1, revisado_por = $2, fecha_revision = NOW()
+                    WHERE id = $3
+                `, [nuevoEstado, admin_id, id]);
+            } else {
+                await client.query(`
+                    UPDATE proyectos 
+                    SET estado = $1, revisado_por = $2, fecha_revision = NOW(), motivo_rechazo = $3
+                    WHERE id = $4
+                `, [nuevoEstado, admin_id, motivo_rechazo, id]);
+            }
+            
+            // Crear notificación al creador
+            const Notificacion = require('../models/notificacion');
+            await Notificacion.create({
+                usuario_id: proyectoData.creador_id,
+                tipo: 'revision_proyecto',
+                emisor_id: admin_id,
+                proyecto_id: parseInt(id),
+                contenido: mensaje
+            });
+            
+            await client.query('COMMIT');
+            
+            res.json({ 
+                success: true, 
+                message: `Proyecto ${nuevoEstado} correctamente`,
+                estado: nuevoEstado
+            });
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Error revisando proyecto:', error);
+            res.status(500).json({ error: 'Error del servidor' });
+        } finally {
+            client.release();
         }
     },
 

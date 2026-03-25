@@ -243,8 +243,8 @@ async function cargarProyectos() {
                 <td>${p.creador_nombre}</td>
                 <td>${new Date(p.created_at).toLocaleDateString()}</td>
                 <td>
-                    <span class="status-badge ${p.activo ? 'status-activo' : 'status-inactivo'}">
-                        ${p.activo ? 'Activo' : 'Inactivo'}
+                    <span class="badge ${p.estado === 'pendiente' ? 'bg-warning status-pendiente' : p.estado === 'aprobado' ? 'bg-success status-activo' : 'bg-danger status-inactivo'}">
+                        ${p.estado?.toUpperCase() || (p.activo ? 'ACTIVO' : 'INACTIVO')}
                     </span>
                 </td>
                 <td>
@@ -259,6 +259,105 @@ async function cargarProyectos() {
         console.error('Error cargando proyectos:', error);
     }
 }
+
+// 🔵 NUEVO: Cargar proyectos pendientes
+async function cargarProyectosPendientes() {
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/proyectos-pendientes`);
+        if (!response) return;
+        
+        const proyectos = await response.json();
+        const tbody = document.getElementById('tablaProyectosPendientes');
+        const contador = document.getElementById('contadorPendientes');
+        
+        contador.textContent = proyectos.length;
+        
+        if (proyectos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay proyectos pendientes</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = proyectos.map(p => `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.nombre}</td>
+                <td>${p.descripcion?.substring(0, 50) || 'Sin descripción'}${p.descripcion?.length > 50 ? '...' : ''}</td>
+                <td>${p.creador_nombre}</td>
+                <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="revisarProyecto(${p.id}, 'aceptar')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="revisarProyecto(${p.id}, 'rechazar')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error cargando proyectos pendientes:', error);
+    }
+}
+
+// 🔵 NUEVO: Función global para revisar proyecto
+window.revisarProyecto = async function(proyectoId, accion) {
+    try {
+        let body = { accion };
+        
+        if (accion === 'rechazar') {
+            const { value: motivo } = await Swal.fire({
+                title: 'Motivo del rechazo',
+                input: 'textarea',
+                inputLabel: 'Mensaje para el creador (mín 10 caracteres)',
+                inputPlaceholder: 'Escribe el motivo...',
+                inputAttributes: {
+                    rows: 4,
+                    maxlength: 500
+                },
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value || value.trim().length < 10) {
+                        return 'El motivo debe tener al menos 10 caracteres';
+                    }
+                }
+            });
+            
+            if (!motivo) return;
+            
+            body.motivo_rechazo = motivo.trim();
+        } else {
+            const confirm = await Swal.fire({
+                title: '¿Aprobar proyecto?',
+                text: 'Se notificará al creador',
+                icon: 'question',
+                showCancelButton: true
+            });
+            
+            if (!confirm.isConfirmed) return;
+        }
+        
+        const response = await fetchWithAuth(`${API_URL}/admin/proyectos/${proyectoId}/revisar`, {
+            method: 'PUT',
+            body: JSON.stringify(body)
+        });
+        
+        if (response.ok) {
+            Swal.fire('Éxito', `Proyecto ${accion === 'aceptar' ? 'aprobado' : 'rechazado'} correctamente`, 'success');
+            // 🔄 Refresh forzado específico para pendientes
+            setTimeout(() => {
+                cargarProyectosPendientes();
+                console.log('🔄 Pendientes refrescados');
+            }, 500);
+            cargarProyectos();
+            // Switch to pendientes
+            const tab = new bootstrap.Tab(document.getElementById('proyectos-pendientes-tab'));
+            tab.show();
+        }
+    } catch (error) {
+        Swal.fire('Error', 'No se pudo procesar la revisión', 'error');
+        console.error('Error revisando proyecto:', error);
+    }
+};
 
 // Cambiar rol de usuario
 window.cambiarRol = async function(usuarioId, nuevoRol) {
@@ -450,3 +549,4 @@ document.getElementById('cerrarSesion')?.addEventListener('click', async functio
 cargarEstadisticas();
 cargarUsuarios();
 cargarProyectos();
+cargarProyectosPendientes();
