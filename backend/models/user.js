@@ -2,7 +2,7 @@
 const pool = require('../config/db');
 
 const User = {
-    // Crear un nuevo usuario
+    // Crear un nuevo usuario (estudiante)
     async create({ nombre_completo, correo, codigo, programa, semestre, password_hash }) {
         const query = `
             INSERT INTO usuarios 
@@ -17,6 +17,25 @@ const User = {
             return result.rows[0];
         } catch (error) {
             console.error('Error en User.create:', error);
+            throw error;
+        }
+    },
+
+    // 👇 NUEVO MÉTODO PARA ADMIN (CORREGIDO)
+    createAdmin: async function({ nombre_completo, correo, codigo, programa, semestre, password_hash, rol }) {
+        const query = `
+            INSERT INTO usuarios 
+            (nombre_completo, correo_institucional, codigo_estudiantil, programa_academico, semestre, contrasena_hash, rol)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING id, correo_institucional, nombre_completo, rol;
+        `;
+        const values = [nombre_completo, correo, codigo, programa, semestre, password_hash, rol];
+        
+        try {
+            const result = await pool.query(query, values);
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error en User.createAdmin:', error);
             throw error;
         }
     },

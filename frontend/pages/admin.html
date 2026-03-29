@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - SkillMatch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --verde-pastel-1: #A8E6CF;
+            --verde-pastel-2: #9ED9CC;
+            --verde-pastel-3: #8EC9C1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: var(--verde-pastel-3);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-icon {
+            color: var(--verde-pastel-3);
+            font-size: 1.3rem;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            height: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: #2c5e5e;
+            border: 1px solid var(--verde-pastel-3);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .table th {
+            background-color: var(--verde-pastel-1);
+            color: #2c5e5e;
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            color: #2c5e5e;
+            border: 1px solid var(--verde-pastel-3);
+        }
+        
+        .btn-admin:hover {
+            background: linear-gradient(135deg, var(--verde-pastel-2) 0%, var(--verde-pastel-3) 100%);
+            color: #1a3f3f;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #2c5e5e;
+            border: none;
+            padding: 0.8rem 1.5rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            color: #2c5e5e;
+            border-radius: 25px;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-activo { background: #d4edda !important; color: #155724; }
+        .status-inactivo { background: #f8d7da !important; color: #721c24; }
+        .status-pendiente { background: #fff3cd !important; color: #856404; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="admin.html">
+                <i class="fas fa-handshake me-2"></i>SkillMatch Admin
+            </a>
+            <div class="d-flex align-items-center">
+                <!-- <a href="feed.html" class="nav-icon" title="Ver sitio">
+                    <i class="fas fa-globe"></i>
+                </a> -->
+                <div class="dropdown">
+                    <button class="btn nav-icon dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-2x"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-header" id="adminName">Admin</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="cerrarSesion">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Tabs de navegación -->
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+                    <i class="fas fa-chart-line me-2"></i>Dashboard
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button" role="tab">
+                    <i class="fas fa-users me-2"></i>Usuarios
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="proyectos-tab" data-bs-toggle="tab" data-bs-target="#proyectos" type="button" role="tab">
+                    <i class="fas fa-project-diagram me-2"></i>Proyectos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="proyectos-pendientes-tab" data-bs-toggle="tab" data-bs-target="#proyectos-pendientes" type="button" role="tab">
+                    <i class="fas fa-clipboard-list me-2"></i>Proyectos Pendientes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button" role="tab">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Dashboard -->
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <div class="stat-number" id="totalUsuarios">0</div>
+                            <div>Total Usuarios</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                            <div class="stat-number" id="totalEstudiantes">0</div>
+                            <div>Estudiantes</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-user-shield fa-2x mb-2"></i>
+                            <div class="stat-number" id="totalAdmins">0</div>
+                            <div>Administradores</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                            <div class="stat-number" id="totalProyectos">0</div>
+                            <div>Proyectos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-chart-line me-2"></i>Actividad reciente</h5>
+                            <canvas id="actividadChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-tags me-2"></i>Categorías populares</h5>
+                            <canvas id="categoriasChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios -->
+            <div class="tab-pane fade" id="usuarios" role="tabpanel">
+                <div class="admin-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-users me-2"></i>Gestión de Usuarios</h5>
+                        <input type="text" id="buscarUsuario" class="form-control w-25" placeholder="Buscar usuario...">
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-sm btn-admin" onclick="filtrarUsuarios('todos')">Todos</button>
+                        <button class="btn btn-sm btn-admin" onclick="filtrarUsuarios('activo')">Activos</button>
+                        <button class="btn btn-sm btn-admin" onclick="filtrarUsuarios('inactivo')">Inactivos</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Código</th>
+                                    <th>Programa</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaUsuarios">
+                                <tr><td colspan="8" class="text-center">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proyectos -->
+            <div class="tab-pane fade" id="proyectos" role="tabpanel">
+                <div class="admin-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-project-diagram me-2"></i>Gestión de Proyectos</h5>
+                        <input type="text" id="buscarProyecto" class="form-control w-25" placeholder="Buscar proyecto...">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Creador</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProyectos">
+                                <tr><td colspan="7" class="text-center">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔵 NUEVA PESTAÑA: Proyectos Pendientes -->
+            <div class="tab-pane fade" id="proyectos-pendientes" role="tabpanel">
+                <div class="admin-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-clipboard-list me-2"></i>Proyectos Pendientes de Revisión</h5>
+                        <span class="badge bg-warning" id="contadorPendientes">0</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Creador</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProyectosPendientes">
+                                <tr><td colspan="6" class="text-center">No hay proyectos pendientes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reportes -->
+            <div class="tab-pane fade" id="reportes" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-download me-2"></i>Exportar Datos</h5>
+                            <button class="btn btn-admin w-100 mb-2" onclick="exportarCSV('usuarios')">
+                                <i class="fas fa-file-csv me-2"></i>Exportar Usuarios
+                            </button>
+                            <button class="btn btn-admin w-100" onclick="exportarCSV('proyectos')">
+                                <i class="fas fa-file-csv me-2"></i>Exportar Proyectos
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="admin-card">
+                            <h5><i class="fas fa-chart-pie me-2"></i>Distribución por Carreras</h5>
+                            <canvas id="carrerasChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/config.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

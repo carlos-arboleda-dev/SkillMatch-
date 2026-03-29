@@ -84,10 +84,35 @@
                                     <input type="text" class="form-control" id="universidad" 
                                            value="Universidad de Nariño" readonly>
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="programa" class="form-label fw-semibold">Carrera</label>
-                                    <input type="text" class="form-control" id="programa" 
-                                           placeholder="Ingeniería de Sistemas" required>
+                                <!-- Facultad y Carrera -->
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="facultad" class="form-label fw-semibold">
+                                            <i class="fas fa-university me-2 text-primary"></i>Facultad
+                                        </label>
+                                        <select class="form-select form-select-lg" id="facultad" required>
+                                            <option value="">Selecciona tu facultad</option>
+                                            <option value="ingenieria">Facultad de Ingeniería</option>
+                                            <option value="agricolas">Facultad de Ciencias Agrícolas</option>
+                                            <option value="exactas">Facultad de Ciencias Exactas y Naturales</option>
+                                            <option value="humanas">Facultad de Ciencias Humanas</option>
+                                            <option value="economicas">Facultad de Ciencias Económicas y Administrativas</option>
+                                            <option value="derecho">Facultad de Derecho</option>
+                                            <option value="artes">Facultad de Artes</option>
+                                            <option value="educacion">Facultad de Educación</option>
+                                            <option value="salud">Facultad de Ciencias de la Salud</option>
+                                            <option value="pecuarias">Facultad de Ciencias Pecuarias</option>
+                                            <option value="posgrados">Facultad de Posgrados</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="programa" class="form-label fw-semibold">
+                                            <i class="fas fa-graduation-cap me-2 text-primary"></i>Programa académico
+                                        </label>
+                                        <select class="form-select form-select-lg" id="programa" required>
+                                            <option value="">Primero selecciona una facultad</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -164,6 +189,8 @@
             </div>
         </div>
     </div>
+    <script src="/js/config.js"></script>
+
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

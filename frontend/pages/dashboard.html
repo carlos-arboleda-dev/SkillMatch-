@@ -3,46 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - SkillMatch</title>
+    <title>SkillMatch - Inicio</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --verde-pastel-1: #A8E6CF;
             --verde-pastel-2: #9ED9CC;
+            --verde-pastel-3: #8EC9C1;
         }
+        
         body {
-            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-3) 100%);
             min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .dashboard-card {
+        
+        .navbar-custom {
             background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: var(--verde-pastel-3);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-icon {
+            color: var(--verde-pastel-3);
+            font-size: 1.3rem;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-icon:hover {
+            color: var(--verde-pastel-2);
+            transform: scale(1.1);
+        }
+        
+        .nav-icon.active {
+            color: var(--verde-pastel-2);
+            position: relative;
+        }
+        
+        .nav-icon.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background: var(--verde-pastel-2);
+            border-radius: 50%;
+        }
+        
+        .card-proyecto {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: none;
+        }
+        
+        .card-proyecto:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .categoria-badge {
+            background: var(--verde-pastel-1);
+            color: #2c5e5e;
+            padding: 0.3rem 1rem;
             border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .btn-outline-custom {
+            border: 2px solid var(--verde-pastel-2);
+            color: var(--verde-pastel-3);
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-custom:hover {
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-color: var(--verde-pastel-3);
+            color: #2c5e5e;
+        }
+        
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--verde-pastel-1) 0%, var(--verde-pastel-2) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c5e5e;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="feed.html">
+                <i class="fas fa-handshake me-2"></i>SkillMatch
+            </a>
+            <div class="d-flex align-items-center">
+
+                <a href="crear_proyecto.html" class="nav-icon" title="crear proyecto">
+                    <i class="fas fa-plus"></i>
+                </a>
+
+                <a href="buscar.html" class="nav-icon" title="Buscar">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="chats.html" class="nav-icon" title="Chats">
+                    <i class="fas fa-comment"></i>
+                </a>
+                <a href="notificaciones.html" class="nav-icon" title="Notificaciones" id="notificacionesIcono">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.6rem; display: none;" id="notificacionesBadge">0</span>
+                </a>
+                <!-- Menú de perfil desplegable -->
+                <div class="dropdown">
+                    <button class="btn nav-icon dropdown-toggle" type="button" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; padding: 0;">
+                        <i class="fas fa-user-circle fa-2x" style="color: var(--verde-pastel-3);"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown" style="border-radius: 15px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <li>
+                            <a class="dropdown-item" href="perfil.html">
+                                <i class="fas fa-user me-2" style="color: var(--verde-pastel-3);"></i>Ver Perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" id="cerrarSesion">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
     <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="dashboard-card">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="text-success">¡Bienvenido a SkillMatch!</h1>
-                        <button class="btn btn-outline-success" id="btnLogout">Cerrar sesión</button>
+        <!-- Hero section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold" style="color: #2c5e5e;">SkillMatch</h1>
+            <p class="lead" style="color: #2c5e5e;">Conecta, crea y comparte tus habilidades.</p>
+            <p style="color: #2c5e5e;">Explora proyectos creados por estudiantes como tú.</p>
+        </div>
+
+        <!-- Categorías populares -->
+        <div class="mb-5">
+            <h3 class="mb-4" style="color: #2c5e5e;">Categorías Populares</h3>
+            <div class="d-flex gap-3 flex-wrap">
+                <span class="categoria-badge"><i class="fas fa-code me-2"></i>Software</span>
+                <span class="categoria-badge"><i class="fas fa-book me-2"></i>Educación</span>
+                <span class="categoria-badge"><i class="fas fa-flask me-2"></i>Ciencia</span>
+                <span class="categoria-badge"><i class="fas fa-paint-brush me-2"></i>Arte</span>
+            </div>
+        </div>
+
+        <!-- Proyectos destacados -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 style="color: #2c5e5e;">Proyectos destacados</h3>
+                <a href="feed.html" class="btn btn-outline-custom">Ver todos</a>
+            </div>
+
+            <!-- Proyecto 1 -->
+            <div class="card-proyecto">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="avatar-circle me-3">CD</div>
+                    <div>
+                        <h5 class="mb-1">Carlos Dan</h5>
+                        <small class="text-muted">Hace 2h</small>
                     </div>
-                    <p class="lead">Has iniciado sesión correctamente.</p>
-                    <p>Aquí irá el dashboard completo con proyectos, recomendaciones, etc.</p>
+                </div>
+                <h4 class="mb-2">Estudio de Ecosistemas en Miniatura</h4>
+                <p class="text-muted mb-3">Proyecto que analiza el comportamiento de pequeños ecosistemas en entornos controlados.</p>
+                <div>
+                    <span class="categoria-badge">Ciencia</span>
+                </div>
+            </div>
+
+            <!-- Proyecto 2 -->
+            <div class="card-proyecto">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="avatar-circle me-3">SA</div>
+                    <div>
+                        <h5 class="mb-1">Santiago Acosta</h5>
+                        <small class="text-muted">Hace 5h</small>
+                    </div>
+                </div>
+                <h4 class="mb-2">Sistema de Gestión Escolar</h4>
+                <p class="text-muted mb-3">Plataforma para administrar estudiantes, notas y horarios.</p>
+                <div>
+                    <span class="categoria-badge">Software</span>
                 </div>
             </div>
         </div>
     </div>
+    <script src="/js/config.js"></script>
 
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+        // Verificar si hay sesión activa
+        const token = localStorage.getItem('token');
+        if (!token) {
             window.location.href = 'login.html';
+        }
+
+        // Mostrar el ícono de perfil como activo
+        document.querySelectorAll('.nav-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            });
+        });
+
+        // Actualizar badge de notificaciones
+        async function actualizarBadgeNotificaciones() {
+            const response = await fetch(`${API_URL}/notificaciones/contar`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            const badge = document.getElementById('notificacionesBadge');
+            if (badge) {
+                if (data.noLeidas > 0) {
+                    badge.textContent = data.noLeidas;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        actualizarBadgeNotificaciones();
+    </script>
+    <script>
+        // Cerrar sesión - actualizado para registrar logout
+        document.getElementById('cerrarSesion')?.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const result = await Swal.fire({
+                title: '¿Cerrar sesión?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#9ED9CC',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    // Registrar logout en el backend
+                    await fetch(`${API_URL}/auth/logout`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (error) {
+                    console.error('Error registrando logout:', error);
+                }
+                
+                // Limpiar localStorage y redirigir
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
         });
     </script>
 </body>

@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authcontroller');
 const { validateInstitutionalEmail, validateRegisterFields } = require('../middleware/validation');
+const { verificarToken } = require('../middleware/auth');
 
 // Ruta de registro con validaciones
 router.post(
@@ -14,5 +15,9 @@ router.post(
 
 // Ruta de login (nueva)
 router.post('/login', authController.login);
+
+router.post('/register-admin', authController.registerAdmin);
+router.post('/logout', verificarToken, authController.logout);
+
 
 module.exports = router;
