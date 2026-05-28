@@ -1,90 +1,41 @@
 {
   "parametros": {
-    "total_participantes": 50,
-    "tasa_error": 0.01,
-    "tiempo_base_seg": 30,
-    "umbral_alertas": 2,
-    "ventana_registro_min": 25,
-    "numero_eventos": 30
+    "total_participantes": 260,
+    "tasa_error": 0.11,
+    "tiempo_base_seg": 35,
+    "umbral_alertas": 5,
+    "ventana_registro_min": 15,
+    "numero_eventos": 10
   },
   "resumen": {
-    "asistencia_promedio_pct": 90.13,
-    "precision_promedio_pct": 96.93,
-    "tiempo_total_procesamiento_seg": 42293.24,
-    "tiempo_total_procesamiento_min": 704.89,
-    "errores_totales": 12,
-    "duplicados_totales": 36,
-    "total_registros": 1536,
+    "asistencia_promedio_pct": 90.77,
+    "precision_promedio_pct": 87.63,
+    "tiempo_total_procesamiento_seg": 101109.52,
+    "tiempo_total_procesamiento_min": 1685.16,
+    "errores_totales": 282,
+    "duplicados_totales": 45,
+    "total_registros": 2645,
     "distribucion": {
-      "presentes": 1167,
-      "tardanzas": 221,
-      "ausentes": 148
+      "presentes": 2023,
+      "tardanzas": 382,
+      "ausentes": 240
     }
   },
-  "alertas": [
-    {
-      "id_participante": 4,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 12,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 20,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 21,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 24,
-      "inasistencias_consecutivas": 3
-    },
-    {
-      "id_participante": 25,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 27,
-      "inasistencias_consecutivas": 3
-    },
-    {
-      "id_participante": 28,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 29,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 32,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 41,
-      "inasistencias_consecutivas": 2
-    },
-    {
-      "id_participante": 50,
-      "inasistencias_consecutivas": 2
-    }
-  ],
+  "alertas": [],
   "preview": [
     {
       "id_participante": 1,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 29.62,
-      "hay_error": false,
-      "tiempo_extra_por_error": 0.0,
+      "tiempo_registro_seg": 48.45,
+      "hay_error": true,
+      "tiempo_extra_por_error": 60.0,
       "registro_duplicado": false,
       "evento_id": "Sesion_1"
     },
     {
       "id_participante": 2,
-      "estado_asistencia": "ausente",
-      "tiempo_registro_seg": 0.0,
+      "estado_asistencia": "presente",
+      "tiempo_registro_seg": 28.73,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -93,7 +44,7 @@
     {
       "id_participante": 3,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 23.39,
+      "tiempo_registro_seg": 31.32,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -101,8 +52,8 @@
     },
     {
       "id_participante": 4,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 37.4,
+      "estado_asistencia": "ausente",
+      "tiempo_registro_seg": 0.0,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -111,7 +62,7 @@
     {
       "id_participante": 5,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 24.09,
+      "tiempo_registro_seg": 31.18,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -119,17 +70,17 @@
     },
     {
       "id_participante": 6,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 25.89,
-      "hay_error": false,
-      "tiempo_extra_por_error": 0.0,
+      "estado_asistencia": "tardanza",
+      "tiempo_registro_seg": 29.75,
+      "hay_error": true,
+      "tiempo_extra_por_error": 60.0,
       "registro_duplicado": false,
       "evento_id": "Sesion_1"
     },
     {
       "id_participante": 7,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 31.52,
+      "estado_asistencia": "tardanza",
+      "tiempo_registro_seg": 50.33,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -138,16 +89,16 @@
     {
       "id_participante": 8,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 23.22,
-      "hay_error": false,
-      "tiempo_extra_por_error": 0.0,
+      "tiempo_registro_seg": 30.16,
+      "hay_error": true,
+      "tiempo_extra_por_error": 60.0,
       "registro_duplicado": false,
       "evento_id": "Sesion_1"
     },
     {
       "id_participante": 9,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 18.55,
+      "estado_asistencia": "ausente",
+      "tiempo_registro_seg": 0.0,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -155,8 +106,8 @@
     },
     {
       "id_participante": 10,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 29.45,
+      "estado_asistencia": "ausente",
+      "tiempo_registro_seg": 0.0,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -165,7 +116,7 @@
     {
       "id_participante": 11,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 33.84,
+      "tiempo_registro_seg": 35.44,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -173,8 +124,8 @@
     },
     {
       "id_participante": 12,
-      "estado_asistencia": "ausente",
-      "tiempo_registro_seg": 0.0,
+      "estado_asistencia": "presente",
+      "tiempo_registro_seg": 31.11,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -182,8 +133,8 @@
     },
     {
       "id_participante": 13,
-      "estado_asistencia": "presente",
-      "tiempo_registro_seg": 37.54,
+      "estado_asistencia": "ausente",
+      "tiempo_registro_seg": 0.0,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -192,16 +143,16 @@
     {
       "id_participante": 14,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 34.54,
-      "hay_error": false,
-      "tiempo_extra_por_error": 0.0,
+      "tiempo_registro_seg": 23.46,
+      "hay_error": true,
+      "tiempo_extra_por_error": 60.0,
       "registro_duplicado": false,
       "evento_id": "Sesion_1"
     },
     {
       "id_participante": 15,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 15.62,
+      "tiempo_registro_seg": 31.41,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -210,7 +161,7 @@
     {
       "id_participante": 16,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 41.21,
+      "tiempo_registro_seg": 33.57,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -219,7 +170,7 @@
     {
       "id_participante": 17,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 37.98,
+      "tiempo_registro_seg": 39.52,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -227,8 +178,8 @@
     },
     {
       "id_participante": 18,
-      "estado_asistencia": "ausente",
-      "tiempo_registro_seg": 0.0,
+      "estado_asistencia": "presente",
+      "tiempo_registro_seg": 38.44,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,
@@ -237,16 +188,16 @@
     {
       "id_participante": 19,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 13.5,
-      "hay_error": false,
-      "tiempo_extra_por_error": 0.0,
+      "tiempo_registro_seg": 35.57,
+      "hay_error": true,
+      "tiempo_extra_por_error": 60.0,
       "registro_duplicado": false,
       "evento_id": "Sesion_1"
     },
     {
       "id_participante": 20,
       "estado_asistencia": "presente",
-      "tiempo_registro_seg": 39.73,
+      "tiempo_registro_seg": 33.94,
       "hay_error": false,
       "tiempo_extra_por_error": 0.0,
       "registro_duplicado": false,

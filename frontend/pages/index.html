@@ -3,36 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AttendanceSim - Suite de Simulación de Asistencia</title>
-    <!-- Hoja de estilos premium custom -->
+    <title> - Simulador de Asistencia</title>
     <link rel="stylesheet" href="../css/style.css">
-    <!-- Iconos FontAwesome para UI elegante -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- Logro flotante de ingreso directo -->
-    <div class="achievement-toast" id="achievement-toast">
-        <div class="achievement-icon">
-            <i class="fa-solid fa-trophy"></i>
-        </div>
-        <div class="achievement-details">
-            <span class="achievement-title">🏆 LOGRO DESBLOQUEADO</span>
-            <span class="achievement-name">Acceso Directo Concedido</span>
-            <span class="achievement-desc">Ingresaste al sistema sin contraseña.</span>
-        </div>
-    </div>
-
     <div class="app-container">
         
-        <!-- Header Principal -->
-        <header>
-            <div class="logo">
-                <h1><i class="fa-solid fa-chart-line"></i> AttendanceSim <span>Suite</span></h1>
-            </div>
-            <div class="server-status">
-                <span class="status-dot"></span>
-                <span>API Online (Simulador Activo)</span>
+        <!-- Header Minimalista -->
+        <header class="header-flat">
+            <div class="header-content">
+                <div class="logo-flat">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1></h1>
+                        <p>Simulador de Asistencia</p>
+                    </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-badge">
+                        <span class="status-indicator"></span>
+                        Sistema Activo
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -160,9 +156,9 @@
                     <div class="plot-display-area" id="plot-area">
                         <!-- Mensaje de bienvenida inicial -->
                         <div class="welcome-overlay" id="welcome-message">
-                            <div class="welcome-icon"><i class="fa-solid fa-circle-play" style="color: var(--purple-neon);"></i></div>
-                            <h3 class="welcome-title">Suite de Simulación Iniciada</h3>
-                            <p class="welcome-desc">Ajusta los parámetros en el panel izquierdo y haz clic en "Ejecutar Simulación" para simular datos en Pandas y generar los reportes y visualizaciones automáticas de Matplotlib.</p>
+                            <div class="welcome-icon"><i class="fa-solid fa-chart-area"></i></div>
+                            <h3 class="welcome-title">Bienvenido </h3>
+                            <p class="welcome-desc"> </p>
                         </div>
                         
                         <!-- Imagen cargada dinámicamente -->
@@ -171,7 +167,7 @@
                         <!-- Spinner de carga -->
                         <div class="plot-loader" id="plot-loader" style="display: none;">
                             <div class="spinner"></div>
-                            <span class="plot-loader-text" id="loader-text">Procesando datos en Pandas...</span>
+                            <span class="plot-loader-text" id="loader-text">Procesando datos...</span>
                         </div>
                     </div>
                 </section>
@@ -182,12 +178,12 @@
                     <!-- Panel Izquierdo: Alertas de Inasistencia -->
                     <div class="dashboard-panel">
                         <div class="panel-header">
-                            <h3 class="panel-title"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Alertas por Faltas Consecutivas</h3>
+                            <h3 class="panel-title"><i class="fa-solid fa-bell"></i> Alertas Recientes</h3>
                         </div>
                         <div class="alerts-wrapper" id="alerts-container">
                             <div class="no-alerts">
-                                <i class="fa-solid fa-circle-check no-alerts-icon"></i>
-                                <span>No hay alertas activas. Ejecuta una simulación.</span>
+                                <i class="fa-solid fa-check-circle no-alerts-icon"></i>
+                                <span>Sin alertas activas</span>
                             </div>
                         </div>
                     </div>
@@ -195,7 +191,7 @@
                     <!-- Panel Derecho: Muestra del Dataset -->
                     <div class="dashboard-panel">
                         <div class="panel-header">
-                            <h3 class="panel-title"><i class="fa-solid fa-database" style="color: var(--cyan-neon);"></i> Preview Pandas Dataset</h3>
+                            <h3 class="panel-title"><i class="fa-solid fa-table"></i> Datos</h3>
                             <button id="btn-csv" class="btn-download" disabled>
                                 <i class="fa-solid fa-download"></i> CSV
                             </button>
@@ -208,14 +204,13 @@
                                         <th>Evento</th>
                                         <th>Asistencia</th>
                                         <th>Tiempo (s)</th>
-                                        <th>¿Error?</th>
-                                        <th>Duplic.</th>
+                                        <th>Error</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body">
                                     <tr>
-                                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
-                                            Ejecuta la simulación para visualizar la estructura del dataset de Pandas.
+                                        <td colspan="5" style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                                            Ejecuta la simulación para ver los datos
                                         </td>
                                     </tr>
                                 </tbody>
