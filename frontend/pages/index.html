@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> - Simulador de Asistencia</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Header Minimalista -->
+        <header class="header-flat">
+            <div class="header-content">
+                <div class="logo-flat">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1></h1>
+                        <p>Simulador de Asistencia</p>
+                    </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-badge">
+                        <span class="status-indicator"></span>
+                        Sistema Activo
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor del Dashboard -->
+        <div class="dashboard-grid">
+            
+            <!-- Panel Izquierdo: Formularios de Configuración -->
+            <aside class="controls-sidebar">
+                <h2 class="sidebar-title"><i class="fa-solid fa-sliders"></i> Configuración</h2>
+                
+                <form id="sim-form">
+                    
+                    <!-- TOTAL_PARTICIPANTES -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Nº de Participantes</span>
+                            <span class="input-value" id="val-participantes">30</span>
+                        </div>
+                        <input type="range" id="total_participantes" name="total_participantes" min="10" max="500" step="10" value="30">
+                    </div>
+
+                    <!-- TASA_ERROR -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Tasa de Error</span>
+                            <span class="input-value" id="val-error">5%</span>
+                        </div>
+                        <input type="range" id="tasa_error" name="tasa_error" min="0.0" max="0.3" step="0.01" value="0.05">
+                    </div>
+
+                    <!-- TIEMPO_BASE_SEG -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Tiempo Base Registro</span>
+                            <span class="input-value" id="val-tiempo-base">30s</span>
+                        </div>
+                        <input type="range" id="tiempo_base_seg" name="tiempo_base_seg" min="10" max="120" step="5" value="30">
+                    </div>
+
+                    <!-- UMBRAL_ALERTAS -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Umbral Alertas (Faltas)</span>
+                            <span class="input-value" id="val-umbral">3</span>
+                        </div>
+                        <input type="range" id="umbral_alertas" name="umbral_alertas" min="1" max="10" step="1" value="3">
+                    </div>
+
+                    <!-- VENTANA_REGISTRO_MIN -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Ventana de Registro</span>
+                            <span class="input-value" id="val-ventana">15m</span>
+                        </div>
+                        <input type="range" id="ventana_registro_min" name="ventana_registro_min" min="5" max="60" step="5" value="15">
+                    </div>
+
+                    <!-- NUMERO_EVENTOS -->
+                    <div class="input-group">
+                        <div class="input-label-row">
+                            <span class="input-label">Número de Sesiones</span>
+                            <span class="input-value" id="val-eventos">10</span>
+                        </div>
+                        <input type="range" id="numero_eventos" name="numero_eventos" min="3" max="30" step="1" value="10">
+                    </div>
+
+                    <!-- Botón de Simulación -->
+                    <button type="submit" id="btn-submit" class="btn-simulate">
+                        <i class="fa-solid fa-bolt"></i> Ejecutar Simulación
+                    </button>
+                    
+                </form>
+            </aside>
+
+            <!-- Panel Derecho: Visualizaciones y Métricas -->
+            <main class="dashboard-main">
+                
+                <!-- KPIs Grid -->
+                <section class="kpi-grid">
+                    
+                    <div class="kpi-card" id="kpi-asistencia">
+                        <div>
+                            <span class="kpi-label">Asistencia Promedio</span>
+                            <div class="kpi-value">--%</div>
+                        </div>
+                        <div class="kpi-trend neutral"><i class="fa-solid fa-minus"></i> Sin datos</div>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-precision">
+                        <div>
+                            <span class="kpi-label">Tasa de Precisión</span>
+                            <div class="kpi-value">--%</div>
+                        </div>
+                        <div class="kpi-trend neutral"><i class="fa-solid fa-minus"></i> Sin datos</div>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-tiempo">
+                        <div>
+                            <span class="kpi-label">Tiempo Total Evento</span>
+                            <div class="kpi-value">-- min</div>
+                        </div>
+                        <div class="kpi-trend neutral"><i class="fa-solid fa-minus"></i> Sin datos</div>
+                    </div>
+
+                    <div class="kpi-card" id="kpi-alertas">
+                        <div>
+                            <span class="kpi-label">Alertas Activas</span>
+                            <div class="kpi-value">--</div>
+                        </div>
+                        <div class="kpi-trend neutral"><i class="fa-solid fa-minus"></i> Sin datos</div>
+                    </div>
+
+                </section>
+
+                <!-- Área de Visualizaciones -->
+                <section class="viz-container">
+                    <nav class="tab-navigation">
+                        <button class="tab-btn active" data-graph="grafica1" disabled><i class="fa-solid fa-chart-line"></i> Escalabilidad G1</button>
+                        <button class="tab-btn" data-graph="grafica2" disabled><i class="fa-solid fa-chart-bar"></i> Impacto Errores G2</button>
+                        <button class="tab-btn" data-graph="grafica3" disabled><i class="fa-solid fa-chart-pie"></i> Estados G3</button>
+                        <button class="tab-btn" data-graph="grafica4" disabled><i class="fa-solid fa-timeline"></i> Precisión Temporal G4</button>
+                        <button class="tab-btn" data-graph="grafica5" disabled><i class="fa-solid fa-arrow-trend-up"></i> Bench Volumen G5</button>
+                    </nav>
+
+                    <div class="plot-display-area" id="plot-area">
+                        <!-- Mensaje de bienvenida inicial -->
+                        <div class="welcome-overlay" id="welcome-message">
+                            <div class="welcome-icon"><i class="fa-solid fa-chart-area"></i></div>
+                            <h3 class="welcome-title">Bienvenido </h3>
+                            <p class="welcome-desc"> </p>
+                        </div>
+                        
+                        <!-- Imagen cargada dinámicamente -->
+                        <img id="plot-img" class="plot-image" src="" alt="Gráfico del simulador">
+                        
+                        <!-- Spinner de carga -->
+                        <div class="plot-loader" id="plot-loader" style="display: none;">
+                            <div class="spinner"></div>
+                            <span class="plot-loader-text" id="loader-text">Procesando datos...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fila Inferior: Alertas y Previsualización de Datos -->
+                <section class="bottom-grid">
+                    
+                    <!-- Panel Izquierdo: Alertas de Inasistencia -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-bell"></i> Alertas Recientes</h3>
+                        </div>
+                        <div class="alerts-wrapper" id="alerts-container">
+                            <div class="no-alerts">
+                                <i class="fa-solid fa-check-circle no-alerts-icon"></i>
+                                <span>Sin alertas activas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Derecho: Muestra del Dataset -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-table"></i> Datos</h3>
+                            <button id="btn-csv" class="btn-download" disabled>
+                                <i class="fa-solid fa-download"></i> CSV
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table id="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Evento</th>
+                                        <th>Asistencia</th>
+                                        <th>Tiempo (s)</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                                            Ejecuta la simulación para ver los datos
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts de la Interfaz -->
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>
